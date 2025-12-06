@@ -8,8 +8,10 @@ import os
 import tempfile
 from pathlib import Path
 import geopandas as gpd
-import generate_safety_margins as gsm
-import population_analysis as pa
+
+# Import from src folder
+from src import generate_safety_margins as gsm
+from src import population_analysis as pa
 
 
 # Page configuration
