@@ -330,16 +330,9 @@ def main():
                 progress_bar.progress(30)
                 st.success("✅ Margens de segurança geradas com sucesso!")
                 
-                # Download button for safety margins
+                # Read KML data for download
                 with open(result_path, 'rb') as f:
                     kml_data = f.read()
-                    st.download_button(
-                        label="📥 Download KML com Margens de Segurança",
-                        data=kml_data,
-                        file_name='safety_margins.kml',
-                        mime='application/vnd.google-earth.kml+xml',
-                        key='download_kml'
-                    )
                 
                 # ETAPA 2: Análise Populacional
                 status_text.markdown('<div class="step-indicator">📊 Etapa 2/2: Analisando densidade populacional...</div>', unsafe_allow_html=True)
@@ -363,6 +356,8 @@ def main():
                         'output_dir': analysis_output_dir,
                         'kml_data': kml_data
                     }
+                else:
+                    st.warning("⚠️ Nenhum resultado foi gerado. Verifique o arquivo KML.")
                 
                 # Cleanup temp input file
                 if os.path.exists(tmp_input_path):
@@ -382,110 +377,96 @@ def main():
             analysis_output_dir = st.session_state['analysis_results']['output_dir']
             kml_data = st.session_state['analysis_results']['kml_data']
             
-            if results:
-                st.success("✅ Análise concluída com sucesso!")
-                
-                # Download KML button (always available)
-                st.download_button(
-                    label="📥 Download KML com Margens de Segurança",
-                    data=kml_data,
-                    file_name='safety_margins.kml',
-                    mime='application/vnd.google-earth.kml+xml',
-                    key='download_kml_final',
-                    use_container_width=False
-                )
-                    st.success("✅ Análise concluída com sucesso!")
-                    
-                    # Display results
-                    st.markdown("---")
-                    st.markdown("## 📈 Resultados da Análise")
-                    
-                    # Create metrics with color coding
-                    cols = st.columns(len(results))
-                    for idx, (layer_name, stats) in enumerate(results.items()):
-                        with cols[idx]:
-                            densidade = stats['densidade_media']
-                            
-                            # Define threshold based on layer
-                            if layer_name == 'Adjacent Area':
-                                threshold = 50
-                            else:  # Flight Geography or Ground Risk Buffer
-                                threshold = 5
-                            
-                            # Color code the density
-                            if densidade > threshold:
-                                st.markdown(f"""
-                                <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 5px; border-left: 4px solid #ff0000;">
-                                    <p style="color: #888; font-size: 0.9rem; margin: 0;">{layer_name}</p>
-                                    <p style="color: #fff; font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">{int(stats['total_pessoas']):,}</p>
-                                    <p style="color: #ff0000; font-size: 1.1rem; margin: 0;">⚠️ {densidade:.1f} hab/km²</p>
-                                </div>
-                                """, unsafe_allow_html=True)
-                            else:
-                                st.metric(
-                                    label=layer_name,
-                                    value=f"{int(stats['total_pessoas']):,}",
-                                    delta=f"{densidade:.1f} hab/km²"
-                                )
-                    
-                    # Detailed statistics table
-                    with st.expander("📋 Estatísticas Detalhadas"):
-                        import pandas as pd
-                        stats_df = pd.DataFrame(results).T
-                        stats_df.columns = ['População Total', 'Área (km²)', 'Densidade (hab/km²)']
-                        stats_df['População Total'] = stats_df['População Total'].astype(int)
-                        stats_df['Área (km²)'] = stats_df['Área (km²)'].round(2)
-                        stats_df['Densidade (hab/km²)'] = stats_df['Densidade (hab/km²)'].round(2)
-                        st.dataframe(stats_df, use_container_width=True)
-                    
-                    # Display maps
-                    st.markdown("---")
-                    st.markdown("## 🗺️ Mapas de Densidade Populacional")
-                    
-                    maps = [
-                        ('map_flight_geography.png', 'Flight Geography'),
-                        ('map_ground_risk_buffer.png', 'Ground Risk Buffer'),
-                        ('map_adjacent_area.png', 'Adjacent Area')
-                    ]
-                    
-                    for map_file, map_title in maps:
-                        map_path = os.path.join(analysis_output_dir, map_file)
-                        if os.path.exists(map_path):
-                            st.markdown(f"### {map_title}")
-                            st.image(map_path, use_container_width=True)
-                    
-                    # Download results
-                    st.markdown("---")
-                    st.markdown("## 📥 Download dos Resultados")
-                    
-                    col1, col2, col3 = st.columns(3)
-                    
-                    for idx, (map_file, map_title) in enumerate(maps):
-                        map_path = os.path.join(analysis_output_dir, map_file)
-                        if os.path.exists(map_path):
-                            with [col1, col2, col3][idx]:
-                                with open(map_path, 'rb') as f:
-                                    st.download_button(
-                                        label=f"📥 {map_title}",
-                                        data=f,
-                                        file_name=map_file,
-                                        mime='image/png',
-                                        use_container_width=True
-                                    )
-                else:
-                    st.warning("⚠️ Nenhum resultado foi gerado. Verifique o arquivo KML.")
-                
-                # Cleanup
-                if os.path.exists(tmp_input_path):
-                    os.unlink(tmp_input_path)
+            st.success("✅ Análise concluída com sucesso!")
             
-            except Exception as e:
-                progress_bar.empty()
-                status_text.empty()
-                st.error(f"❌ Erro durante o processamento: {str(e)}")
-                import traceback
-                with st.expander("Ver detalhes do erro"):
-                    st.code(traceback.format_exc())
+            # Download KML button (always available)
+            st.download_button(
+                label="📥 Download KML com Margens de Segurança",
+                data=kml_data,
+                file_name='safety_margins.kml',
+                mime='application/vnd.google-earth.kml+xml',
+                key='download_kml_final',
+                use_container_width=False
+            )
+            
+            # Display results
+            st.markdown("---")
+            st.markdown("## 📈 Resultados da Análise")
+            
+            # Create metrics with color coding
+            cols = st.columns(len(results))
+            for idx, (layer_name, stats) in enumerate(results.items()):
+                with cols[idx]:
+                    densidade = stats['densidade_media']
+                    
+                    # Define threshold based on layer
+                    if layer_name == 'Adjacent Area':
+                        threshold = 50
+                    else:  # Flight Geography or Ground Risk Buffer
+                        threshold = 5
+                    
+                    # Color code the density
+                    if densidade > threshold:
+                        st.markdown(f"""
+                        <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 5px; border-left: 4px solid #ff0000;">
+                            <p style="color: #888; font-size: 0.9rem; margin: 0;">{layer_name}</p>
+                            <p style="color: #fff; font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">{int(stats['total_pessoas']):,}</p>
+                            <p style="color: #ff0000; font-size: 1.1rem; margin: 0;">⚠️ {densidade:.1f} hab/km²</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.metric(
+                            label=layer_name,
+                            value=f"{int(stats['total_pessoas']):,}",
+                            delta=f"{densidade:.1f} hab/km²"
+                        )
+            
+            # Detailed statistics table
+            with st.expander("📋 Estatísticas Detalhadas"):
+                import pandas as pd
+                stats_df = pd.DataFrame(results).T
+                stats_df.columns = ['População Total', 'Área (km²)', 'Densidade (hab/km²)']
+                stats_df['População Total'] = stats_df['População Total'].astype(int)
+                stats_df['Área (km²)'] = stats_df['Área (km²)'].round(2)
+                stats_df['Densidade (hab/km²)'] = stats_df['Densidade (hab/km²)'].round(2)
+                st.dataframe(stats_df, use_container_width=True)
+            
+            # Display maps
+            st.markdown("---")
+            st.markdown("## 🗺️ Mapas de Densidade Populacional")
+            
+            maps = [
+                ('map_flight_geography.png', 'Flight Geography'),
+                ('map_ground_risk_buffer.png', 'Ground Risk Buffer'),
+                ('map_adjacent_area.png', 'Adjacent Area')
+            ]
+            
+            for map_file, map_title in maps:
+                map_path = os.path.join(analysis_output_dir, map_file)
+                if os.path.exists(map_path):
+                    st.markdown(f"### {map_title}")
+                    st.image(map_path, use_container_width=True)
+            
+            # Download results
+            st.markdown("---")
+            st.markdown("## 📥 Download dos Resultados")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            for idx, (map_file, map_title) in enumerate(maps):
+                map_path = os.path.join(analysis_output_dir, map_file)
+                if os.path.exists(map_path):
+                    with [col1, col2, col3][idx]:
+                        with open(map_path, 'rb') as f:
+                            file_data = f.read()
+                            st.download_button(
+                                label=f"📥 {map_title}",
+                                data=file_data,
+                                file_name=map_file,
+                                mime='image/png',
+                                use_container_width=True,
+                                key=f"download_map_{idx}"
+                            )
     
     # Footer
     st.markdown("""
