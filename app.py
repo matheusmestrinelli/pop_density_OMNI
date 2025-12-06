@@ -183,11 +183,19 @@ st.markdown("""
 
 
 def create_header():
-    """Create application header."""
+    """Create application header with logos."""
     st.markdown("""
     <div class="main-header">
-        <h1>🚁 AL Drones - Population Analysis Tool</h1>
-        <p>Líder em Certificação de Drones | Análise de Densidade Populacional</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <img src="https://aldrones.com.br/wp-content/uploads/2021/01/Logo-branca-2.png" 
+                 alt="AL Drones Logo" 
+                 style="height: 60px; object-fit: contain;">
+            <img src="https://www.omnibrasil.com.br/assets/home/img/logo-branco-omni.png" 
+                 alt="Omni Logo" 
+                 style="height: 60px; object-fit: contain;">
+        </div>
+        <h1>🚁 Population Analysis Tool</h1>
+        <p>Análise de Densidade Populacional para Operações de Drones</p>
     </div>
     """, unsafe_allow_html=True)
 
