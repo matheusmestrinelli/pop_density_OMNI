@@ -439,7 +439,6 @@ def main():
                             <p style="color: #ff0000; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">
                                 ⚠️ {densidade:.1f} <span style="color: #ff6666; font-size: 1.2rem; font-weight: 600;">hab/km²</span>
                             </p>
-                            <p style="color: #ddd; font-size: 1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
@@ -449,7 +448,6 @@ def main():
                             <p style="color: #00ff00; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">
                                 ✓ {densidade:.1f} <span style="color: #66ff66; font-size: 1.2rem; font-weight: 600;">hab/km²</span>
                             </p>
-                            <p style="color: #ddd; font-size: 1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
                         </div>
                         """, unsafe_allow_html=True)
             
