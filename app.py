@@ -19,7 +19,7 @@ st.set_page_config(
     page_title="AL Drones - Population Analysis",
     page_icon="🚁",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS with AL Drones branding
@@ -30,6 +30,14 @@ st.markdown("""
     header {visibility: hidden;}
     footer {visibility: hidden;}
     .stDeployButton {display: none;}
+    
+    /* Hide "Hosted by Streamlit" */
+    .viewerBadge_container__1QSob {display: none;}
+    .viewerBadge_link__1S137 {display: none;}
+    [data-testid="stStatusWidget"] {display: none;}
+    
+    /* Hide sidebar toggle button */
+    [data-testid="collapsedControl"] {display: none;}
     
     /* AL Drones Color Palette */
     :root {
@@ -212,35 +220,6 @@ def main():
     # Header
     create_header()
     
-    # Sidebar
-    with st.sidebar:
-        st.markdown("### 🎯 Sistema de Análise")
-        st.markdown("""
-        Este sistema realiza:
-        
-        1. 📍 **Geração de Margens de Segurança**
-           - Flight Geography
-           - Contingency Volume
-           - Ground Risk Buffer
-           - Adjacent Area
-        
-        2. 📊 **Análise Populacional**
-           - Dados IBGE Censo 2022
-           - Mapas de densidade
-           - Estatísticas detalhadas
-        """)
-        
-        st.markdown("---")
-        st.markdown("### 📞 Contato")
-        st.markdown("""
-        **AL Drones**  
-        Líder em Certificação de Drones
-        
-        🌐 [aldrones.com.br](https://aldrones.com.br)  
-        📧 contato@aldrones.com.br  
-        📱 [@aldrones_aviation](https://instagram.com/aldrones_aviation)
-        """)
-    
     # Main content
     st.markdown("""
     <div class="info-card">
@@ -260,7 +239,8 @@ def main():
     uploaded_file = st.file_uploader(
         "Selecione o arquivo KML de entrada",
         type=['kml'],
-        key='kml_input'
+        key='kml_input',
+        on_change=lambda: st.session_state.pop('analysis_results', None)  # Clear results on new upload
     )
     
     if uploaded_file:
@@ -408,11 +388,12 @@ def main():
             st.markdown("---")
             st.markdown("## 📈 Resultados da Análise")
             
-            # Create metrics with color coding
+            # Create metrics with color coding - DENSITY FIRST
             cols = st.columns(len(results))
             for idx, (layer_name, stats) in enumerate(results.items()):
                 with cols[idx]:
                     densidade = stats['densidade_media']
+                    populacao = int(stats['total_pessoas'])
                     
                     # Define threshold based on layer
                     if layer_name == 'Adjacent Area':
@@ -425,16 +406,20 @@ def main():
                         st.markdown(f"""
                         <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 5px; border-left: 4px solid #ff0000;">
                             <p style="color: #888; font-size: 0.9rem; margin: 0;">{layer_name}</p>
-                            <p style="color: #fff; font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">{int(stats['total_pessoas']):,}</p>
-                            <p style="color: #ff0000; font-size: 1.1rem; margin: 0;">⚠️ {densidade:.1f} hab/km²</p>
+                            <p style="color: #ff0000; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">⚠️ {densidade:.1f}</p>
+                            <p style="color: #aaa; font-size: 0.9rem; margin: 0;">hab/km²</p>
+                            <p style="color: #ddd; font-size: 1.1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
-                        st.metric(
-                            label=layer_name,
-                            value=f"{int(stats['total_pessoas']):,}",
-                            delta=f"{densidade:.1f} hab/km²"
-                        )
+                        st.markdown(f"""
+                        <div style="background: rgba(0, 255, 0, 0.05); padding: 1rem; border-radius: 5px; border-left: 4px solid #00ff00;">
+                            <p style="color: #888; font-size: 0.9rem; margin: 0;">{layer_name}</p>
+                            <p style="color: #00ff00; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">✓ {densidade:.1f}</p>
+                            <p style="color: #aaa; font-size: 0.9rem; margin: 0;">hab/km²</p>
+                            <p style="color: #ddd; font-size: 1.1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
+                        </div>
+                        """, unsafe_allow_html=True)
             
             # Detailed statistics table
             with st.expander("📋 Estatísticas Detalhadas"):
