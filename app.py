@@ -480,7 +480,7 @@ def main():
     st.markdown("""
     <div class="footer">
         <p>© 2025 AL Drones - Todos os direitos reservados</p>
-        <p>Desenvolvido com 💚 pela AL Drones | 
+        <p>Desenvolvido pela AL Drones | 
         <a href="https://aldrones.com.br" target="_blank">aldrones.com.br</a></p>
     </div>
     """, unsafe_allow_html=True)
