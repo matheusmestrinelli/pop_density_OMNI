@@ -31,10 +31,15 @@ st.markdown("""
     footer {visibility: hidden;}
     .stDeployButton {display: none;}
     
-    /* Hide "Hosted by Streamlit" */
+    /* Hide "Hosted by Streamlit" and manage app */
     .viewerBadge_container__1QSob {display: none;}
     .viewerBadge_link__1S137 {display: none;}
     [data-testid="stStatusWidget"] {display: none;}
+    div[data-testid="stToolbar"] {display: none;}
+    .styles_viewerBadge__1yB5_ {display: none;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     
     /* Hide sidebar toggle button */
     [data-testid="collapsedControl"] {display: none;}
@@ -406,18 +411,18 @@ def main():
                         st.markdown(f"""
                         <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 5px; border-left: 4px solid #ff0000;">
                             <p style="color: #888; font-size: 0.9rem; margin: 0;">{layer_name}</p>
-                            <p style="color: #ff0000; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">⚠️ {densidade:.1f}</p>
-                            <p style="color: #aaa; font-size: 0.9rem; margin: 0;">hab/km²</p>
-                            <p style="color: #ddd; font-size: 1.1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
+                            <p style="color: #ff0000; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0 0.2rem 0;">⚠️ {densidade:.1f}</p>
+                            <p style="color: #ff6666; font-size: 1.2rem; font-weight: 600; margin: 0;">hab/km²</p>
+                            <p style="color: #ddd; font-size: 1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
                         st.markdown(f"""
                         <div style="background: rgba(0, 255, 0, 0.05); padding: 1rem; border-radius: 5px; border-left: 4px solid #00ff00;">
                             <p style="color: #888; font-size: 0.9rem; margin: 0;">{layer_name}</p>
-                            <p style="color: #00ff00; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">✓ {densidade:.1f}</p>
-                            <p style="color: #aaa; font-size: 0.9rem; margin: 0;">hab/km²</p>
-                            <p style="color: #ddd; font-size: 1.1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
+                            <p style="color: #00ff00; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0 0.2rem 0;">✓ {densidade:.1f}</p>
+                            <p style="color: #66ff66; font-size: 1.2rem; font-weight: 600; margin: 0;">hab/km²</p>
+                            <p style="color: #ddd; font-size: 1rem; margin-top: 0.5rem;">{populacao:,} pessoas</p>
                         </div>
                         """, unsafe_allow_html=True)
             
