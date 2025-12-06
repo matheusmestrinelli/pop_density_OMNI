@@ -1,0 +1,4 @@
+gdal-bin
+libgdal-dev
+g++
+build-essential
