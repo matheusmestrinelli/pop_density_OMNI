@@ -1,1 +1,24 @@
+# Core dependencies
+geopandas==0.14.1
+shapely==2.0.2
+pandas==2.1.4
+numpy==1.26.2
 
+# KML processing
+simplekml==1.3.6
+
+# Visualization
+matplotlib==3.8.2
+contextily==1.4.0
+
+# Web requests
+requests==2.31.0
+
+# Streamlit for web interface
+streamlit==1.29.0
+streamlit-folium==0.15.1
+folium==0.15.1
+
+# Additional utilities
+Pillow==10.1.0
+plotly==5.18.0
