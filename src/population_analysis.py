@@ -234,6 +234,10 @@ def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_most
     # Plot
     fig, ax = plt.subplots(figsize=(24, 24))
     
+    # Initialize variables for legend
+    high_density = gpd.GeoDataFrame()
+    normal_density = gpd.GeoDataFrame()
+    
     # Plot cells with density highlighting if threshold is set
     if highlight_threshold is not None:
         # Separate high and normal density cells
@@ -288,12 +292,11 @@ def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_most
     
     # Add high and low density cells to legend if threshold is set
     if highlight_threshold is not None:
-        if not high_density.empty:
-            legend_elements.append(Patch(facecolor='red', edgecolor='darkred', 
-                                        alpha=0.7, label=f'Densidade > {highlight_threshold} hab/km²'))
-        if not normal_density.empty:
-            legend_elements.append(Patch(facecolor='green', edgecolor='darkgreen', 
-                                        alpha=0.5, label=f'Densidade ≤ {highlight_threshold} hab/km²'))
+        # Always add both legend items when threshold is set
+        legend_elements.append(Patch(facecolor='green', edgecolor='darkgreen', 
+                                    alpha=0.5, label=f'Densidade ≤ {highlight_threshold} hab/km²'))
+        legend_elements.append(Patch(facecolor='red', edgecolor='darkred', 
+                                    alpha=0.7, label=f'Densidade > {highlight_threshold} hab/km²'))
     
     # Add legend
     ax.legend(handles=legend_elements, loc='upper right', fontsize=12, 
