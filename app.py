@@ -25,6 +25,12 @@ st.set_page_config(
 # Custom CSS with AL Drones branding
 st.markdown("""
 <style>
+    /* Hide Streamlit header elements */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stDeployButton {display: none;}
+    
     /* AL Drones Color Palette */
     :root {
         --aldrones-green: #00ff00;
@@ -186,16 +192,17 @@ def create_header():
     """Create application header with logos."""
     st.markdown("""
     <div class="main-header">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 3rem; margin-bottom: 2rem;">
             <img src="https://aldrones.com.br/wp-content/uploads/2021/01/Logo-branca-2.png" 
                  alt="AL Drones Logo" 
                  style="height: 60px; object-fit: contain;">
+            <div style="width: 2px; height: 80px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.3), transparent);"></div>
             <img src="https://www.omnibrasil.com.br/assets/home/img/logo-branco-omni.png" 
                  alt="Omni Logo" 
                  style="height: 60px; object-fit: contain;">
         </div>
-        <h1>🚁 Population Analysis Tool</h1>
-        <p>Análise de Densidade Populacional para Operações de Drones</p>
+        <h1 style="text-align: center;">🚁 Population Analysis Tool</h1>
+        <p style="text-align: center;">Análise de Densidade Populacional para Operações de Drones</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -480,7 +487,7 @@ def main():
     st.markdown("""
     <div class="footer">
         <p>© 2025 AL Drones - Todos os direitos reservados</p>
-        <p>Desenvolvido pela AL Drones | 
+        <p>Desenvolvido com 💚 pela AL Drones | 
         <a href="https://aldrones.com.br" target="_blank">aldrones.com.br</a></p>
     </div>
     """, unsafe_allow_html=True)
