@@ -6,15 +6,10 @@ Streamlit interface for drone safety analysis tools.
 import streamlit as st
 import os
 import tempfile
-import base64
 from pathlib import Path
 import geopandas as gpd
-import sys
-import os
-sys.path.insert(0, os.path.dirname(__file__))
-
-from src.generate_safety_margins import generate_safety_margins
-from src.population_analysis import analyze_population
+from generate_safety_margins import generate_safety_margins, calculate_grb_size
+from population_analysis import analyze_population
 
 
 # Page configuration
@@ -170,18 +165,19 @@ st.markdown("""
     .footer a:hover {
         color: #66ff66;
     }
+    
+    /* Steps indicator */
+    .step-indicator {
+        background: rgba(0, 255, 0, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border-left: 3px solid #00ff00;
+        margin: 1rem 0;
+        font-weight: 600;
+        color: #00ff00;
+    }
 </style>
 """, unsafe_allow_html=True)
-
-
-def load_logo():
-    """Load AL Drones logo."""
-    # You would replace this with the actual logo path
-    logo_path = "assets/logo.svg"
-    if os.path.exists(logo_path):
-        with open(logo_path, "r") as f:
-            return f.read()
-    return None
 
 
 def create_header():
@@ -194,25 +190,56 @@ def create_header():
     """, unsafe_allow_html=True)
 
 
-def step1_safety_margins():
-    """Step 1: Generate Safety Margins."""
-    st.markdown("### 📍 Etapa 1: Gerar Margens de Segurança")
+def main():
+    """Main application."""
+    # Header
+    create_header()
     
+    # Sidebar
+    with st.sidebar:
+        st.markdown("### 🎯 Sistema de Análise")
+        st.markdown("""
+        Este sistema realiza:
+        
+        1. 📍 **Geração de Margens de Segurança**
+           - Flight Geography
+           - Contingency Volume
+           - Ground Risk Buffer
+           - Adjacent Area
+        
+        2. 📊 **Análise Populacional**
+           - Dados IBGE Censo 2022
+           - Mapas de densidade
+           - Estatísticas detalhadas
+        """)
+        
+        st.markdown("---")
+        st.markdown("### 📞 Contato")
+        st.markdown("""
+        **AL Drones**  
+        Líder em Certificação de Drones
+        
+        🌐 [aldrones.com.br](https://aldrones.com.br)  
+        📧 contato@aldrones.com.br  
+        📱 [@aldrones_aviation](https://instagram.com/aldrones_aviation)
+        """)
+    
+    # Main content
     st.markdown("""
     <div class="info-card">
-        <h3>ℹ️ Sobre esta etapa</h3>
+        <h3>ℹ️ Como usar</h3>
         <p>Faça upload de um arquivo KML contendo a geometria do voo (ponto ou polígono). 
-        O sistema irá gerar automaticamente 4 camadas de segurança:</p>
+        O sistema irá automaticamente:</p>
         <ul>
-            <li><strong style="color: #00ff00;">Flight Geography</strong> - Área de voo</li>
-            <li><strong style="color: #ffcc00;">Contingency Volume</strong> - Volume de contingência</li>
-            <li><strong style="color: #ff0000;">Ground Risk Buffer</strong> - Buffer de risco ao solo</li>
-            <li><strong style="color: #0066cc;">Adjacent Area</strong> - Área adjacente (5km)</li>
+            <li>Gerar as 4 camadas de segurança</li>
+            <li>Analisar a densidade populacional com dados do IBGE</li>
+            <li>Gerar mapas e estatísticas detalhadas</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
     
     # File upload
+    st.markdown("### 📤 Upload do KML")
     uploaded_file = st.file_uploader(
         "Selecione o arquivo KML de entrada",
         type=['kml'],
@@ -221,6 +248,8 @@ def step1_safety_margins():
     
     if uploaded_file:
         # Create two columns for parameters
+        st.markdown("### ⚙️ Configuração dos Parâmetros")
+        
         col1, col2 = st.columns(2)
         
         with col1:
@@ -259,13 +288,20 @@ def step1_safety_margins():
             )
         
         # Calculate GRB preview
-        from src.generate_safety_margins import calculate_grb_size
         grb_preview = calculate_grb_size(height)
         st.info(f"📊 Ground Risk Buffer calculado: {grb_preview:.2f} m")
         
-        # Generate button
-        if st.button("🚀 Gerar Margens de Segurança", type="primary"):
-            with st.spinner("Processando KML..."):
+        # Process button
+        if st.button("🚀 Iniciar Análise Completa", type="primary"):
+            # Progress tracking
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            try:
+                # ETAPA 1: Gerar Margens de Segurança
+                status_text.markdown('<div class="step-indicator">📍 Etapa 1/2: Gerando margens de segurança...</div>', unsafe_allow_html=True)
+                progress_bar.progress(10)
+                
                 # Save uploaded file temporarily
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.kml') as tmp_input:
                     tmp_input.write(uploaded_file.getvalue())
@@ -273,249 +309,126 @@ def step1_safety_margins():
                 
                 # Generate output path
                 output_dir = tempfile.mkdtemp()
-                output_path = os.path.join(output_dir, 'safety_margins.kml')
+                safety_kml_path = os.path.join(output_dir, 'safety_margins.kml')
                 
-                try:
-                    # Generate safety margins
-                    result_path = generate_safety_margins(
-                        input_kml_path=tmp_input_path,
-                        output_kml_path=output_path,
-                        fg_size=fg_size,
-                        height=height,
-                        cv_size=cv_size,
-                        corner_style=corner_style
+                # Generate safety margins
+                result_path = generate_safety_margins(
+                    input_kml_path=tmp_input_path,
+                    output_kml_path=safety_kml_path,
+                    fg_size=fg_size,
+                    height=height,
+                    cv_size=cv_size,
+                    corner_style=corner_style
+                )
+                
+                progress_bar.progress(30)
+                st.success("✅ Margens de segurança geradas com sucesso!")
+                
+                # Download button for safety margins
+                with open(result_path, 'rb') as f:
+                    st.download_button(
+                        label="📥 Download KML com Margens de Segurança",
+                        data=f,
+                        file_name='safety_margins.kml',
+                        mime='application/vnd.google-earth.kml+xml'
                     )
-                    
-                    # Store in session state
-                    st.session_state['safety_margins_kml'] = result_path
-                    
-                    # Success message
-                    st.success("✅ Margens de segurança geradas com sucesso!")
-                    
-                    # Download button
-                    with open(result_path, 'rb') as f:
-                        st.download_button(
-                            label="📥 Download KML com Margens de Segurança",
-                            data=f,
-                            file_name='safety_margins.kml',
-                            mime='application/vnd.google-earth.kml+xml'
-                        )
-                    
-                    # Show preview
-                    with st.expander("👁️ Visualizar Camadas Geradas"):
-                        gdf = gpd.read_file(result_path)
-                        st.dataframe(gdf[['Name']].value_counts())
-                    
-                except Exception as e:
-                    st.error(f"❌ Erro ao processar KML: {str(e)}")
-                finally:
-                    # Cleanup
-                    if os.path.exists(tmp_input_path):
-                        os.unlink(tmp_input_path)
-
-
-def step2_population_analysis():
-    """Step 2: Population Analysis."""
-    st.markdown("### 📊 Etapa 2: Análise de Densidade Populacional")
-    
-    st.markdown("""
-    <div class="info-card">
-        <h3>ℹ️ Sobre esta etapa</h3>
-        <p>Faça upload do KML gerado na Etapa 1 (com as 4 camadas de segurança). 
-        O sistema irá analisar a densidade populacional usando dados do IBGE Censo 2022.</p>
-        <p><strong>Grade Estatística IBGE:</strong></p>
-        <ul>
-            <li>Resolução: 1km × 1km (rural) e 200m × 200m (urbano)</li>
-            <li>Projeção: Albers Equal Area (SIRGAS2000)</li>
-            <li>Dados: Censo 2022</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Check if safety margins KML exists in session
-    has_session_kml = 'safety_margins_kml' in st.session_state
-    
-    if has_session_kml:
-        st.info("✅ KML da Etapa 1 detectado. Você pode prosseguir diretamente ou fazer upload de um novo arquivo.")
-    
-    # File upload
-    uploaded_file = st.file_uploader(
-        "Selecione o arquivo KML com margens de segurança",
-        type=['kml'],
-        key='kml_analysis'
-    )
-    
-    # Determine which file to use
-    kml_to_analyze = None
-    if uploaded_file:
-        kml_to_analyze = uploaded_file
-    elif has_session_kml:
-        kml_to_analyze = st.session_state['safety_margins_kml']
-    
-    if kml_to_analyze:
-        # Analyze button
-        if st.button("🔍 Iniciar Análise Populacional", type="primary"):
-            with st.spinner("Analisando densidade populacional... Isso pode levar alguns minutos."):
-                # Save uploaded file if needed
-                if isinstance(kml_to_analyze, str):
-                    # Already a file path
-                    input_path = kml_to_analyze
-                else:
-                    # Uploaded file, save temporarily
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.kml') as tmp:
-                        tmp.write(kml_to_analyze.getvalue())
-                        input_path = tmp.name
                 
-                # Create output directory
-                output_dir = tempfile.mkdtemp()
+                # Show preview
+                with st.expander("👁️ Visualizar Camadas Geradas"):
+                    gdf = gpd.read_file(result_path, driver='KML')
+                    layer_counts = gdf['Name'].value_counts()
+                    st.dataframe(layer_counts.reset_index().rename(columns={'index': 'Camada', 'Name': 'Quantidade'}))
                 
-                try:
-                    # Run analysis
-                    results = analyze_population(input_path, output_dir)
+                # ETAPA 2: Análise Populacional
+                status_text.markdown('<div class="step-indicator">📊 Etapa 2/2: Analisando densidade populacional...</div>', unsafe_allow_html=True)
+                progress_bar.progress(40)
+                
+                st.info("⏳ Baixando dados do IBGE e processando... Isso pode levar alguns minutos.")
+                
+                # Run population analysis
+                analysis_output_dir = os.path.join(output_dir, 'analysis_results')
+                os.makedirs(analysis_output_dir, exist_ok=True)
+                
+                results = analyze_population(result_path, analysis_output_dir)
+                
+                progress_bar.progress(100)
+                status_text.empty()
+                
+                if results:
+                    st.success("✅ Análise concluída com sucesso!")
                     
-                    if results:
-                        st.success("✅ Análise concluída com sucesso!")
-                        
-                        # Display results
-                        st.markdown("### 📈 Resultados da Análise")
-                        
-                        # Create metrics
-                        cols = st.columns(len(results))
-                        for idx, (layer_name, stats) in enumerate(results.items()):
-                            with cols[idx]:
-                                st.metric(
-                                    label=layer_name,
-                                    value=f"{int(stats['total_pessoas']):,}",
-                                    delta=f"{stats['densidade_media']:.1f} hab/km²"
-                                )
-                        
-                        # Display maps
-                        st.markdown("### 🗺️ Mapas de Densidade Populacional")
-                        
-                        maps = [
-                            'map_flight_geography.png',
-                            'map_ground_risk_buffer.png',
-                            'map_adjacent_area.png'
-                        ]
-                        
-                        for map_file in maps:
-                            map_path = os.path.join(output_dir, map_file)
-                            if os.path.exists(map_path):
-                                st.image(map_path, use_container_width=True)
-                        
-                        # Download results
-                        st.markdown("### 📥 Download dos Resultados")
-                        
-                        for map_file in maps:
-                            map_path = os.path.join(output_dir, map_file)
-                            if os.path.exists(map_path):
+                    # Display results
+                    st.markdown("---")
+                    st.markdown("## 📈 Resultados da Análise")
+                    
+                    # Create metrics
+                    cols = st.columns(len(results))
+                    for idx, (layer_name, stats) in enumerate(results.items()):
+                        with cols[idx]:
+                            st.metric(
+                                label=layer_name,
+                                value=f"{int(stats['total_pessoas']):,}",
+                                delta=f"{stats['densidade_media']:.1f} hab/km²"
+                            )
+                    
+                    # Detailed statistics table
+                    with st.expander("📋 Estatísticas Detalhadas"):
+                        import pandas as pd
+                        stats_df = pd.DataFrame(results).T
+                        stats_df.columns = ['População Total', 'Área (km²)', 'Densidade (hab/km²)']
+                        stats_df['População Total'] = stats_df['População Total'].astype(int)
+                        stats_df['Área (km²)'] = stats_df['Área (km²)'].round(2)
+                        stats_df['Densidade (hab/km²)'] = stats_df['Densidade (hab/km²)'].round(2)
+                        st.dataframe(stats_df, use_container_width=True)
+                    
+                    # Display maps
+                    st.markdown("---")
+                    st.markdown("## 🗺️ Mapas de Densidade Populacional")
+                    
+                    maps = [
+                        ('map_flight_geography.png', 'Flight Geography'),
+                        ('map_ground_risk_buffer.png', 'Ground Risk Buffer'),
+                        ('map_adjacent_area.png', 'Adjacent Area')
+                    ]
+                    
+                    for map_file, map_title in maps:
+                        map_path = os.path.join(analysis_output_dir, map_file)
+                        if os.path.exists(map_path):
+                            st.markdown(f"### {map_title}")
+                            st.image(map_path, use_container_width=True)
+                    
+                    # Download results
+                    st.markdown("---")
+                    st.markdown("## 📥 Download dos Resultados")
+                    
+                    col1, col2, col3 = st.columns(3)
+                    
+                    for idx, (map_file, map_title) in enumerate(maps):
+                        map_path = os.path.join(analysis_output_dir, map_file)
+                        if os.path.exists(map_path):
+                            with [col1, col2, col3][idx]:
                                 with open(map_path, 'rb') as f:
                                     st.download_button(
-                                        label=f"Download {map_file}",
+                                        label=f"📥 {map_title}",
                                         data=f,
                                         file_name=map_file,
-                                        mime='image/png'
+                                        mime='image/png',
+                                        use_container_width=True
                                     )
-                    else:
-                        st.warning("⚠️ Nenhum resultado foi gerado. Verifique o arquivo KML.")
+                else:
+                    st.warning("⚠️ Nenhum resultado foi gerado. Verifique o arquivo KML.")
                 
-                except Exception as e:
-                    st.error(f"❌ Erro durante a análise: {str(e)}")
-                    import traceback
-                    with st.expander("Ver detalhes do erro"):
-                        st.code(traceback.format_exc())
-
-
-def main():
-    """Main application."""
-    # Header
-    create_header()
-    
-    # Sidebar
-    with st.sidebar:
-        st.markdown("### 🎯 Navegação")
-        page = st.radio(
-            "Selecione a etapa:",
-            options=[
-                "📍 Etapa 1: Margens de Segurança",
-                "📊 Etapa 2: Análise Populacional",
-                "ℹ️ Sobre"
-            ],
-            index=0
-        )
-        
-        st.markdown("---")
-        st.markdown("### 📞 Contato")
-        st.markdown("""
-        **AL Drones**  
-        Líder em Certificação de Drones
-        
-        🌐 [aldrones.com.br](https://aldrones.com.br)  
-        📧 contato@aldrones.com.br  
-        📱 Instagram: [@aldrones_aviation](https://instagram.com/aldrones_aviation)
-        """)
-    
-    # Main content
-    if page == "📍 Etapa 1: Margens de Segurança":
-        step1_safety_margins()
-    elif page == "📊 Etapa 2: Análise Populacional":
-        step2_population_analysis()
-    else:  # Sobre
-        st.markdown("### ℹ️ Sobre o Sistema")
-        
-        st.markdown("""
-        <div class="info-card">
-            <h3>🚁 AL Drones Population Analysis Tool</h3>
-            <p>Sistema de análise de densidade populacional para operações de drones, 
-            desenvolvido pela AL Drones para auxiliar em estudos de risco para autorizações BVLOS.</p>
+                # Cleanup
+                if os.path.exists(tmp_input_path):
+                    os.unlink(tmp_input_path)
             
-            <h4>Funcionalidades:</h4>
-            <ul>
-                <li><strong>Geração Automática de Margens de Segurança:</strong> 
-                Cria 4 camadas de segurança baseadas em parâmetros de voo</li>
-                <li><strong>Análise Populacional:</strong> 
-                Utiliza dados oficiais do IBGE Censo 2022</li>
-                <li><strong>Visualização Geoespacial:</strong> 
-                Mapas de densidade populacional com camadas sobrepostas</li>
-                <li><strong>Estatísticas Detalhadas:</strong> 
-                População total, área e densidade média por camada</li>
-            </ul>
-            
-            <h4>Tecnologias:</h4>
-            <p>Python, GeoPandas, Streamlit, IBGE API, OpenStreetMap</p>
-            
-            <h4>Sobre a AL Drones:</h4>
-            <p>A AL Drones é líder em certificação de drones no Brasil, especializada em 
-            autorizações ANAC para voos BVLOS e drones de grande porte. Nossa equipe de 
-            engenheiros aeronáuticos traz a experiência da aviação tripulada para o 
-            desenvolvimento e certificação de aeronaves não tripuladas.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Team info
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            <div class="info-card">
-                <h4>👨‍✈️ André Arruda</h4>
-                <p><strong>Co-Fundador</strong></p>
-                <p>Eng. Aeronáutico<br>
-                Especialista em Ensaios em Voo<br>
-                Experiência: EMBRAER, AIRBUS, LATAM</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("""
-            <div class="info-card">
-                <h4>👨‍💼 Lucas Florêncio</h4>
-                <p><strong>Co-Fundador</strong></p>
-                <p>Eng. Aeronáutico & MBA<br>
-                Especialista em Certificação<br>
-                Experiência: Airship do Brasil, Octans Aircraft</p>
-            </div>
-            """, unsafe_allow_html=True)
+            except Exception as e:
+                progress_bar.empty()
+                status_text.empty()
+                st.error(f"❌ Erro durante o processamento: {str(e)}")
+                import traceback
+                with st.expander("Ver detalhes do erro"):
+                    st.code(traceback.format_exc())
     
     # Footer
     st.markdown("""
