@@ -363,15 +363,33 @@ def main():
                     st.markdown("---")
                     st.markdown("## 📈 Resultados da Análise")
                     
-                    # Create metrics
+                    # Create metrics with color coding
                     cols = st.columns(len(results))
                     for idx, (layer_name, stats) in enumerate(results.items()):
                         with cols[idx]:
-                            st.metric(
-                                label=layer_name,
-                                value=f"{int(stats['total_pessoas']):,}",
-                                delta=f"{stats['densidade_media']:.1f} hab/km²"
-                            )
+                            densidade = stats['densidade_media']
+                            
+                            # Define threshold based on layer
+                            if layer_name == 'Adjacent Area':
+                                threshold = 50
+                            else:  # Flight Geography or Ground Risk Buffer
+                                threshold = 5
+                            
+                            # Color code the density
+                            if densidade > threshold:
+                                st.markdown(f"""
+                                <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 5px; border-left: 4px solid #ff0000;">
+                                    <p style="color: #888; font-size: 0.9rem; margin: 0;">{layer_name}</p>
+                                    <p style="color: #fff; font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">{int(stats['total_pessoas']):,}</p>
+                                    <p style="color: #ff0000; font-size: 1.1rem; margin: 0;">⚠️ {densidade:.1f} hab/km²</p>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            else:
+                                st.metric(
+                                    label=layer_name,
+                                    value=f"{int(stats['total_pessoas']):,}",
+                                    delta=f"{densidade:.1f} hab/km²"
+                                )
                     
                     # Detailed statistics table
                     with st.expander("📋 Estatísticas Detalhadas"):
@@ -410,12 +428,14 @@ def main():
                         if os.path.exists(map_path):
                             with [col1, col2, col3][idx]:
                                 with open(map_path, 'rb') as f:
+                                    file_data = f.read()
                                     st.download_button(
                                         label=f"📥 {map_title}",
-                                        data=f,
+                                        data=file_data,
                                         file_name=map_file,
                                         mime='image/png',
-                                        use_container_width=True
+                                        use_container_width=True,
+                                        key=f"download_{map_file}"
                                     )
                 else:
                     st.warning("⚠️ Nenhum resultado foi gerado. Verifique o arquivo KML.")
