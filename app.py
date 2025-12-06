@@ -9,6 +9,10 @@ import tempfile
 import base64
 from pathlib import Path
 import geopandas as gpd
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+
 from src.generate_safety_margins import generate_safety_margins
 from src.population_analysis import analyze_population
 
