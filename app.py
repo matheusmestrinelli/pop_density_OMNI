@@ -295,6 +295,10 @@ def main():
         
         # Process button
         if st.button("🚀 Iniciar Análise Completa", type="primary"):
+            # Clear previous results
+            if 'analysis_results' in st.session_state:
+                del st.session_state['analysis_results']
+            
             # Progress tracking
             progress_bar = st.progress(0)
             status_text = st.empty()
@@ -328,18 +332,14 @@ def main():
                 
                 # Download button for safety margins
                 with open(result_path, 'rb') as f:
+                    kml_data = f.read()
                     st.download_button(
                         label="📥 Download KML com Margens de Segurança",
-                        data=f,
+                        data=kml_data,
                         file_name='safety_margins.kml',
-                        mime='application/vnd.google-earth.kml+xml'
+                        mime='application/vnd.google-earth.kml+xml',
+                        key='download_kml'
                     )
-                
-                # Show preview
-                with st.expander("👁️ Visualizar Camadas Geradas"):
-                    gdf = gpd.read_file(result_path, driver='KML')
-                    layer_counts = gdf['Name'].value_counts()
-                    st.dataframe(layer_counts.reset_index().rename(columns={'index': 'Camada', 'Name': 'Quantidade'}))
                 
                 # ETAPA 2: Análise Populacional
                 status_text.markdown('<div class="step-indicator">📊 Etapa 2/2: Analisando densidade populacional...</div>', unsafe_allow_html=True)
@@ -357,6 +357,43 @@ def main():
                 status_text.empty()
                 
                 if results:
+                    # Store results in session state to persist across reruns
+                    st.session_state['analysis_results'] = {
+                        'stats': results,
+                        'output_dir': analysis_output_dir,
+                        'kml_data': kml_data
+                    }
+                
+                # Cleanup temp input file
+                if os.path.exists(tmp_input_path):
+                    os.unlink(tmp_input_path)
+            
+            except Exception as e:
+                progress_bar.empty()
+                status_text.empty()
+                st.error(f"❌ Erro durante o processamento: {str(e)}")
+                import traceback
+                with st.expander("Ver detalhes do erro"):
+                    st.code(traceback.format_exc())
+        
+        # Display results if they exist in session state
+        if 'analysis_results' in st.session_state:
+            results = st.session_state['analysis_results']['stats']
+            analysis_output_dir = st.session_state['analysis_results']['output_dir']
+            kml_data = st.session_state['analysis_results']['kml_data']
+            
+            if results:
+                st.success("✅ Análise concluída com sucesso!")
+                
+                # Download KML button (always available)
+                st.download_button(
+                    label="📥 Download KML com Margens de Segurança",
+                    data=kml_data,
+                    file_name='safety_margins.kml',
+                    mime='application/vnd.google-earth.kml+xml',
+                    key='download_kml_final',
+                    use_container_width=False
+                )
                     st.success("✅ Análise concluída com sucesso!")
                     
                     # Display results
@@ -428,14 +465,12 @@ def main():
                         if os.path.exists(map_path):
                             with [col1, col2, col3][idx]:
                                 with open(map_path, 'rb') as f:
-                                    file_data = f.read()
                                     st.download_button(
                                         label=f"📥 {map_title}",
-                                        data=file_data,
+                                        data=f,
                                         file_name=map_file,
                                         mime='image/png',
-                                        use_container_width=True,
-                                        key=f"download_{map_file}"
+                                        use_container_width=True
                                     )
                 else:
                     st.warning("⚠️ Nenhum resultado foi gerado. Verifique o arquivo KML.")
