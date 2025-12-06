@@ -8,8 +8,8 @@ import os
 import tempfile
 from pathlib import Path
 import geopandas as gpd
-from generate_safety_margins import generate_safety_margins, calculate_grb_size
-from population_analysis import analyze_population
+import generate_safety_margins as gsm
+import population_analysis as pa
 
 
 # Page configuration
@@ -288,7 +288,7 @@ def main():
             )
         
         # Calculate GRB preview
-        grb_preview = calculate_grb_size(height)
+        grb_preview = gsm.calculate_grb_size(height)
         st.info(f"📊 Ground Risk Buffer calculado: {grb_preview:.2f} m")
         
         # Process button
@@ -312,7 +312,7 @@ def main():
                 safety_kml_path = os.path.join(output_dir, 'safety_margins.kml')
                 
                 # Generate safety margins
-                result_path = generate_safety_margins(
+                result_path = gsm.generate_safety_margins(
                     input_kml_path=tmp_input_path,
                     output_kml_path=safety_kml_path,
                     fg_size=fg_size,
@@ -349,7 +349,7 @@ def main():
                 analysis_output_dir = os.path.join(output_dir, 'analysis_results')
                 os.makedirs(analysis_output_dir, exist_ok=True)
                 
-                results = analyze_population(result_path, analysis_output_dir)
+                results = pa.analyze_population(result_path, analysis_output_dir)
                 
                 progress_bar.progress(100)
                 status_text.empty()
