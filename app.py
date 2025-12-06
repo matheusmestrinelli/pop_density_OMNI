@@ -249,6 +249,25 @@ def main():
     )
     
     if uploaded_file:
+        # Read geometry to check type
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.kml') as tmp:
+                tmp.write(uploaded_file.getvalue())
+                tmp_path = tmp.name
+            
+            gdf_check = gpd.read_file(tmp_path, driver='KML')
+            geom_types = gdf_check.geometry.type.unique()
+            has_polygon = any(g in ['Polygon', 'MultiPolygon'] for g in geom_types)
+            has_point_or_line = any(g in ['Point', 'LineString', 'MultiPoint', 'MultiLineString'] for g in geom_types)
+            
+            # Clean up temp file
+            os.unlink(tmp_path)
+            
+        except Exception as e:
+            st.error(f"Erro ao ler KML: {str(e)}")
+            has_polygon = False
+            has_point_or_line = True
+        
         # Create two columns for parameters
         st.markdown("### ⚙️ Configuração dos Parâmetros")
         
@@ -256,13 +275,19 @@ def main():
         
         with col1:
             st.markdown("#### Parâmetros de Voo")
-            fg_size = st.number_input(
-                "Flight Geography Buffer (m)",
-                min_value=0.0,
-                value=0.0,
-                step=10.0,
-                help="Deixe em 0 se o KML já contém um polígono"
-            )
+            
+            # Only show FG buffer if geometry is point or line
+            if has_point_or_line and not has_polygon:
+                fg_size = st.number_input(
+                    "Flight Geography Buffer (m)",
+                    min_value=0.0,
+                    value=50.0,
+                    step=10.0,
+                    help="Buffer para criar a área de voo a partir do ponto/linha"
+                )
+            else:
+                fg_size = 0.0
+                st.info("📍 Geometria detectada: Polígono (Flight Geography já definido)")
             
             height = st.number_input(
                 "Altura de Voo (m)",
