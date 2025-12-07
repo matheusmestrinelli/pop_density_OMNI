@@ -197,11 +197,11 @@ def create_header():
         <div style="display: flex; justify-content: center; align-items: center; gap: 3rem; margin-bottom: 2rem;">
             <img src="https://aldrones.com.br/wp-content/uploads/2021/01/Logo-branca-2.png" 
                  alt="AL Drones Logo" 
-                 style="height: 60px; object-fit: contain;">
-            <div style="width: 2px; height: 80px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.3), transparent);"></div>
+                 style="height: 70px; object-fit: contain;">
+            <div style="width: 2px; height: 100px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent);"></div>
             <img src="https://www.omnibrasil.com.br/assets/home/img/logo-branco-omni.png" 
                  alt="Omni Logo" 
-                 style="height: 60px; object-fit: contain;">
+                 style="height: 70px; object-fit: contain;">
         </div>
         <h1 style="text-align: center;">Análise da Área de Voo para o SwissDrones SDO 50 V3</h1>
     </div>
