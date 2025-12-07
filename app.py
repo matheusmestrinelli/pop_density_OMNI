@@ -29,17 +29,7 @@ st.markdown("""
     header {visibility: hidden;}
     footer {visibility: hidden;}
     .stDeployButton {display: none;}
-    
-    /* Hide "Hosted by Streamlit" and manage app */
-    .viewerBadge_container__1QSob {display: none;}
-    .viewerBadge_link__1S137 {display: none;}
-    [data-testid="stStatusWidget"] {display: none;}
-    div[data-testid="stToolbar"] {display: none;}
-    .styles_viewerBadge__1yB5_ {display: none;}
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
+      
     /* Hide sidebar toggle button */
     [data-testid="collapsedControl"] {display: none;}
     
@@ -68,7 +58,7 @@ st.markdown("""
     
     .main-header h1 {
         color: #ffffff;
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
     }
@@ -213,8 +203,7 @@ def create_header():
                  alt="Omni Logo" 
                  style="height: 60px; object-fit: contain;">
         </div>
-        <h1 style="text-align: center;">🚁 Population Analysis Tool</h1>
-        <p style="text-align: center;">Análise de Densidade Populacional para Operações de Drones</p>
+        <h1 style="text-align: center;">Flight Area Analysis for the SwissDrones SDO 50 V3</h1>
     </div>
     """, unsafe_allow_html=True)
 
