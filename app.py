@@ -168,7 +168,7 @@ st.markdown("""
     }
     
     .footer a {
-        color: #054750;
+        color: #E0AB25;
         text-decoration: none;
     }
     
