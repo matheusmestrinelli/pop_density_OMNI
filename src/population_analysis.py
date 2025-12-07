@@ -156,16 +156,34 @@ def desenhar_contornos(ax, layers_poligonos, layer_order):
             )
 
 
-def calcular_estatisticas(dados_intersec):
-    """Calculate statistics from filtered grid."""
+def calcular_estatisticas(dados_intersec, area_geom=None):
+    """
+    Calculate statistics from filtered grid.
+    
+    Args:
+        dados_intersec: GeoDataFrame with population data in metric projection
+        area_geom: Optional - actual polygon geometry to use for area calculation
+    
+    Returns:
+        tuple: (total_pessoas, area_km2, densidade_media, densidade_maxima)
+    """
     if dados_intersec.empty:
-        return 0, 0.0, 0.0
+        return 0, 0.0, 0.0, 0.0
     
     total_pessoas = float(dados_intersec['TOTAL'].sum())
-    area_total_km2 = float((dados_intersec.geometry.area.sum()) / 1e6)
-    densidade_media = (total_pessoas / area_total_km2) if area_total_km2 > 0 else 0.0
     
-    return total_pessoas, area_total_km2, densidade_media
+    # Use actual polygon area if provided, otherwise sum of cell areas
+    if area_geom is not None:
+        # Convert to metric projection and calculate area
+        area_geom_projected = gpd.GeoSeries([area_geom], crs='EPSG:4326').to_crs(ALBERS_BR)
+        area_km2 = float(area_geom_projected.area.iloc[0] / 1e6)
+    else:
+        area_km2 = float((dados_intersec.geometry.area.sum()) / 1e6)
+    
+    densidade_media = (total_pessoas / area_km2) if area_km2 > 0 else 0.0
+    densidade_maxima = float(dados_intersec['densidade_pop_km2'].max()) if not dados_intersec.empty else 0.0
+    
+    return total_pessoas, area_km2, densidade_media, densidade_maxima
 
 
 def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_mostrar, output_path=None):
@@ -256,12 +274,13 @@ def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_most
         print(f"⚠ Could not add basemap: {e}")
     
     # Statistics
-    total_pessoas, area_total_km2, densidade_media = calcular_estatisticas(dados_area)
+    total_pessoas, area_km2, densidade_media, densidade_maxima = calcular_estatisticas(dados_area, area_geom)
     
     info_texto = (
         f"Total population: {int(total_pessoas):,}\n"
-        f"Total cell area: {area_total_km2:.2f} km²\n"
-        f"Average density: {densidade_media:.2f} pop/km²"
+        f"Polygon area: {area_km2:.2f} km²\n"
+        f"Average density: {densidade_media:.2f} pop/km²\n"
+        f"Maximum density: {densidade_maxima:.2f} pop/km²"
     ).replace(",", ".")
     
     ax.text(
@@ -281,8 +300,9 @@ def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_most
     
     return {
         'total_pessoas': total_pessoas,
-        'area_total_km2': area_total_km2,
-        'densidade_media': densidade_media
+        'area_km2': area_km2,
+        'densidade_media': densidade_media,
+        'densidade_maxima': densidade_maxima
     }
 
 
@@ -337,8 +357,9 @@ def analyze_population(kml_file, output_dir='results'):
         results['Ground Risk Buffer'] = stats
     
     # Plot 3 — Adjacent Area ring
-    if 'Adjacent Area' in layers_poligonos and 'Contingency Volume' in layers_poligonos:
-        area_anel = layers_poligonos['Adjacent Area'].difference(layers_poligonos['Contingency Volume'])
+    # Adjacent Area is built 5km from CV, but analyzed area is between GRB and Adjacent Area
+    if 'Adjacent Area' in layers_poligonos and 'Ground Risk Buffer' in layers_poligonos:
+        area_anel = layers_poligonos['Adjacent Area'].difference(layers_poligonos['Ground Risk Buffer'])
         stats = processar_todas_grades(
             area_geom=area_anel,
             titulo="Population Density - Adjacent Area",
