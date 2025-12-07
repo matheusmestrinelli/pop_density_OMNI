@@ -80,7 +80,7 @@ st.markdown("""
     }
     
     .info-card h3 {
-        color: #00ff00;
+        color: #E0AB25;
         margin-top: 0;
     }
     
