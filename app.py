@@ -73,9 +73,9 @@ st.markdown("""
     .info-card {
         background: rgba(255, 255, 255, 0.05);
         padding: 1rem;
-        border-radius: 8px;
-        border: 1px solid rgba(0, 255, 0, 0.2);
-        margin: 1rem 0;
+        border-radius: 0px;
+        border: 0px solid rgba(0, 255, 0, 0.2);
+        margin: 0rem 0;
         backdrop-filter: blur(10px);
     }
     
