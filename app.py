@@ -58,11 +58,11 @@ st.markdown("""
     
     /* Header styling */
     .main-header {
-        background: linear-gradient(90deg, #1a1a1a 0%, #2a2a3e 100%);
+        background: linear-gradient(90deg, #054750 0%, #2a2a3e 100%);
         padding: 2rem;
         border-radius: 10px;
         margin-bottom: 2rem;
-        border-left: 5px solid #00ff00;
+        border-left: 5px solid #E0AB25;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
     
