@@ -1,6 +1,5 @@
 """
-AL Drones - Population Analysis Web Application
-Streamlit interface for drone safety analysis tools.
+AL Drones - Flight Area Analysis Tool
 """
 
 import streamlit as st
@@ -16,7 +15,7 @@ from src import population_analysis as pa
 
 # Page configuration
 st.set_page_config(
-    page_title="AL Drones - Population Analysis",
+    page_title="AL Drones - Flight Area Analysis Tool",
     page_icon="🚁",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -44,26 +43,27 @@ st.markdown("""
     /* Hide sidebar toggle button */
     [data-testid="collapsedControl"] {display: none;}
     
-    /* AL Drones Official Color Palette */
+    /* AL Drones Color Palette */
     :root {
-        --aldrones-teal: #054750;
-        --aldrones-dark: #000000;
-        --aldrones-light-teal: #0a6b7a;
-        --aldrones-accent: #00d4ff;
+        --aldrones-green: #054750;
+        --aldrones-dark: #1a1a1a;
+        --aldrones-yellow: #E0AB25;
+        --aldrones-gray: #333333;
     }
     
     /* Main background */
     .stApp {
-        background: #000000;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
     }
     
-    /* Header styling with AL Drones color */
+    /* Header styling */
     .main-header {
-        background: linear-gradient(135deg, #054750 0%, #0a6b7a 100%);
+        background: linear-gradient(90deg, #1a1a1a 0%, #2a2a3e 100%);
         padding: 2rem;
         border-radius: 10px;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(5, 71, 80, 0.5);
+        border-left: 5px solid #00ff00;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
     
     .main-header h1 {
@@ -71,134 +71,90 @@ st.markdown("""
         font-size: 2.5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        text-align: center;
     }
     
     .main-header p {
-        color: #e0f7fa;
+        color: #00ff00;
         font-size: 1.2rem;
         margin: 0;
-        text-align: center;
     }
     
     /* Card styling */
     .info-card {
-        background: rgba(5, 71, 80, 0.1);
+        background: rgba(255, 255, 255, 0.05);
         padding: 1.5rem;
         border-radius: 8px;
-        border: 1px solid rgba(5, 71, 80, 0.3);
+        border: 1px solid rgba(0, 255, 0, 0.2);
         margin: 1rem 0;
         backdrop-filter: blur(10px);
     }
     
     .info-card h3 {
-        color: #00d4ff;
+        color: #00ff00;
         margin-top: 0;
     }
     
-    .info-card p, .info-card ul {
+    .info-card p {
         color: #e0e0e0;
     }
     
     /* Buttons */
     .stButton>button {
-        background: linear-gradient(90deg, #054750 0%, #0a6b7a 100%);
-        color: #ffffff;
+        background: linear-gradient(90deg, #00cc00 0%, #00ff00 100%);
+        color: #000000;
         font-weight: 600;
         border: none;
         padding: 0.75rem 2rem;
         border-radius: 5px;
         transition: all 0.3s;
-        border: 2px solid transparent;
     }
     
     .stButton>button:hover {
-        background: linear-gradient(90deg, #0a6b7a 0%, #00d4ff 100%);
+        background: linear-gradient(90deg, #00ff00 0%, #66ff66 100%);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
-        border: 2px solid #00d4ff;
+        box-shadow: 0 4px 12px rgba(0, 255, 0, 0.4);
     }
     
-    /* Input fields - higher contrast */
-    .stTextInput>div>div>input,
-    .stNumberInput>div>div>input,
-    .stSelectbox>div>div>select {
-        background-color: #1a1a1a !important;
-        color: #ffffff !important;
-        border: 2px solid #054750 !important;
-        border-radius: 5px;
-        padding: 0.5rem;
-    }
-    
-    .stTextInput>div>div>input:focus,
-    .stNumberInput>div>div>input:focus,
-    .stSelectbox>div>div>select:focus {
-        border-color: #00d4ff !important;
-        box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2) !important;
-    }
-    
-    /* Input labels */
-    .stTextInput>label,
-    .stNumberInput>label,
-    .stSelectbox>label {
-        color: #00d4ff !important;
-        font-weight: 600;
-    }
-    
-    /* File uploader - higher contrast */
-    [data-testid="stFileUploader"] {
-        background-color: #1a1a1a;
-        border: 2px dashed #054750;
-        border-radius: 8px;
-        padding: 1rem;
-    }
-    
-    [data-testid="stFileUploader"]:hover {
-        border-color: #00d4ff;
-        background-color: rgba(5, 71, 80, 0.1);
-    }
-    
+    /* File uploader */
     .uploadedFile {
-        background: rgba(5, 71, 80, 0.2);
-        border: 2px solid #054750;
+        background: rgba(0, 255, 0, 0.1);
+        border: 2px dashed #00ff00;
         border-radius: 5px;
+    }
+    
+    /* Sidebar */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #1a1a1a 0%, #2a2a3e 100%);
     }
     
     /* Success messages */
     .stSuccess {
-        background: rgba(0, 212, 255, 0.1);
-        border-left: 4px solid #00d4ff;
-        color: #00d4ff;
+        background: rgba(0, 255, 0, 0.1);
+        border-left: 4px solid #00ff00;
+        color: #00ff00;
     }
     
     /* Info messages */
     .stInfo {
-        background: rgba(5, 71, 80, 0.2);
-        border-left: 4px solid #054750;
-        color: #e0f7fa;
+        background: rgba(0, 102, 204, 0.1);
+        border-left: 4px solid #0066cc;
     }
     
     /* Progress bar */
     .stProgress > div > div {
-        background: linear-gradient(90deg, #054750 0%, #00d4ff 100%);
+        background: linear-gradient(90deg, #00cc00 0%, #00ff00 100%);
     }
     
     /* Expander */
     .streamlit-expanderHeader {
-        background: rgba(5, 71, 80, 0.1);
+        background: rgba(0, 255, 0, 0.05);
         border-radius: 5px;
-        color: #00d4ff;
-        border: 1px solid #054750;
-    }
-    
-    .streamlit-expanderHeader:hover {
-        background: rgba(5, 71, 80, 0.2);
-        border-color: #00d4ff;
+        color: #00ff00;
     }
     
     /* Metrics */
     [data-testid="stMetricValue"] {
-        color: #00d4ff;
+        color: #00ff00;
         font-size: 2rem;
     }
     
@@ -208,7 +164,7 @@ st.markdown("""
     
     /* Tables */
     .dataframe {
-        background: rgba(5, 71, 80, 0.1);
+        background: rgba(255, 255, 255, 0.05);
         color: #e0e0e0;
     }
     
@@ -217,38 +173,28 @@ st.markdown("""
         text-align: center;
         padding: 2rem;
         color: #888888;
-        border-top: 1px solid rgba(5, 71, 80, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
         margin-top: 3rem;
     }
     
     .footer a {
-        color: #00d4ff;
+        color: #00ff00;
         text-decoration: none;
-        transition: color 0.3s;
     }
     
     .footer a:hover {
-        color: #054750;
+        color: #66ff66;
     }
     
     /* Steps indicator */
     .step-indicator {
-        background: rgba(5, 71, 80, 0.2);
+        background: rgba(0, 255, 0, 0.1);
         padding: 0.5rem 1rem;
         border-radius: 5px;
-        border-left: 3px solid #00d4ff;
+        border-left: 3px solid #00ff00;
         margin: 1rem 0;
         font-weight: 600;
-        color: #00d4ff;
-    }
-    
-    /* Section headers */
-    h3 {
-        color: #00d4ff !important;
-    }
-    
-    h4 {
-        color: #0a6b7a !important;
+        color: #00ff00;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -262,13 +208,13 @@ def create_header():
             <img src="https://aldrones.com.br/wp-content/uploads/2021/01/Logo-branca-2.png" 
                  alt="AL Drones Logo" 
                  style="height: 60px; object-fit: contain;">
-            <div style="width: 2px; height: 80px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.5), transparent);"></div>
+            <div style="width: 2px; height: 80px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.3), transparent);"></div>
             <img src="https://www.omnibrasil.com.br/assets/home/img/logo-branco-omni.png" 
                  alt="Omni Logo" 
                  style="height: 60px; object-fit: contain;">
         </div>
-        <h1>🚁 Population Analysis Tool</h1>
-        <p>Análise de Densidade Populacional para Operações de Drones</p>
+        <h1 style="text-align: center;">🚁 Population Analysis Tool</h1>
+        <p style="text-align: center;">Análise de Densidade Populacional para Operações de Drones</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -567,7 +513,7 @@ def main():
     st.markdown("""
     <div class="footer">
         <p>© 2025 AL Drones - Todos os direitos reservados</p>
-        <p>Desenvolvido pela AL Drones | 
+        <p>Desenvolvido com 💚 pela AL Drones | 
         <a href="https://aldrones.com.br" target="_blank">aldrones.com.br</a></p>
     </div>
     """, unsafe_allow_html=True)
