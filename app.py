@@ -190,6 +190,11 @@ st.markdown("""
     main .block-container {
         padding-top: 0px !important;
     }
+
+    .stApp {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
     
 </style>
 """, unsafe_allow_html=True)
