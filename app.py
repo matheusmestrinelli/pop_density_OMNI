@@ -64,7 +64,7 @@ st.markdown("""
     }
     
     .main-header p {
-        color: #00ff00;
+        color: #054750;
         font-size: 1rem;
         margin: 0;
     }
@@ -203,7 +203,7 @@ def create_header():
                  alt="Omni Logo" 
                  style="height: 60px; object-fit: contain;">
         </div>
-        <h1 style="text-align: center;">Flight Area Analysis for the SwissDrones SDO 50 V3</h1>
+        <h1 style="text-align: center;">Análise da Área de Voo para o SwissDrones SDO 50 V3</h1>
     </div>
     """, unsafe_allow_html=True)
 
@@ -502,7 +502,7 @@ def main():
     st.markdown("""
     <div class="footer">
         <p>© 2025 AL Drones - Todos os direitos reservados</p>
-        <p>Desenvolvido com 💚 pela AL Drones | 
+        <p>Desenvolvido pela AL Drones | 
         <a href="https://aldrones.com.br" target="_blank">aldrones.com.br</a></p>
     </div>
     """, unsafe_allow_html=True)
