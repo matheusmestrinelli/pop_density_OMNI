@@ -187,13 +187,11 @@ st.markdown("""
         color: #00ff00;
     }
 
-    main .block-container {
-        padding-top: 0px !important;
-    }
-
-    .stApp {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
+    .block-container {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
     
 </style>
