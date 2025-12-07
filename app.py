@@ -60,7 +60,7 @@ st.markdown("""
         color: #ffffff;
         font-size: 2rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0rem;
     }
     
     .main-header p {
