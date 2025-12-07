@@ -72,7 +72,7 @@ st.markdown("""
     /* Card styling */
     .info-card {
         background: rgba(255, 255, 255, 0.05);
-        padding: 0rem;
+        padding: 0.5rem;
         border-radius: 0px;
         border: 0px solid rgba(0, 255, 0, 0.2);
         margin: 1rem 0;
