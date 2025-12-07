@@ -186,6 +186,37 @@ st.markdown("""
         font-weight: 600;
         color: #00ff00;
     }
+
+    /* Remove margem/padding padrão do container principal */
+    .block-container {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    /* Remove espaço superior geral da página */
+    main .block-container {
+        padding-top: 0px !important;
+    }
+    
+    /* Remove padding interno do body */
+    html, body, [class*="css"] {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Força o header a colar no topo */
+    .stApp {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Reduz espaço do rodapé também */
+    footer {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
