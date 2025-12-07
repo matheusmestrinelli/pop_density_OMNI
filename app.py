@@ -65,14 +65,14 @@ st.markdown("""
     
     .main-header p {
         color: #00ff00;
-        font-size: 1.2rem;
+        font-size: 1rem;
         margin: 0;
     }
     
     /* Card styling */
     .info-card {
         background: rgba(255, 255, 255, 0.05);
-        padding: 1.5rem;
+        padding: 1rem;
         border-radius: 8px;
         border: 1px solid rgba(0, 255, 0, 0.2);
         margin: 1rem 0;
@@ -217,11 +217,11 @@ def main():
     st.markdown("""
     <div class="info-card">
         <h3>ℹ️ Como usar</h3>
-        <p>Faça upload de um arquivo KML contendo a geometria do voo (ponto ou polígono). 
-        O sistema irá automaticamente:</p>
+        <p>Faça upload de um arquivo KML contendo a geometria do voo (linha ou polígono). 
+        A ferramenta irá automaticamente:</p>
         <ul>
-            <li>Gerar as 4 camadas de segurança</li>
-            <li>Analisar a densidade populacional com dados do IBGE</li>
+            <li>Gerar polígonos com as margens de segurança aplicáveis</li>
+            <li>Analisar a densidade populacional na área de interesse utilizando os dados do IBGE 2022</li>
             <li>Gerar mapas e estatísticas detalhadas</li>
         </ul>
     </div>
