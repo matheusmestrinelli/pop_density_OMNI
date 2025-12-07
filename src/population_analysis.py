@@ -170,14 +170,10 @@ def calcular_estatisticas(dados_intersec):
     return total_pessoas, area_total_km2, densidade_media
 
 
-def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_mostrar, output_path=None, highlight_threshold=None, use_polygon_area=False):
+def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_mostrar, output_path=None):
     """
     Process all relevant IBGE grids and create a single combined map.
     Uses 500km grid as spatial index to identify relevant quadrants.
-    
-    Args:
-        highlight_threshold: If set, cells with density > threshold will be highlighted in red
-        use_polygon_area: If True, use actual polygon area instead of sum of cell areas
     """
     print(f"\n{'='*60}")
     print(f"Processing: {titulo}")
@@ -233,74 +229,18 @@ def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_most
     
     # Plot
     fig, ax = plt.subplots(figsize=(24, 24))
+    dados_combinados.plot(
+        column='densidade_pop_km2',
+        ax=ax,
+        legend=True,
+        cmap='YlOrBr',
+        alpha=0.6,
+        edgecolor='black',
+        linewidth=0.2,
+        legend_kwds={'shrink': 0.3, 'label': 'Density (pop/km²)'}
+    )
     
-    # Initialize variables for legend
-    high_density = gpd.GeoDataFrame()
-    normal_density = gpd.GeoDataFrame()
-    
-    # Plot cells with density highlighting if threshold is set
-    if highlight_threshold is not None:
-        # Separate high and normal density cells
-        high_density = dados_combinados[dados_combinados['densidade_pop_km2'] > highlight_threshold]
-        normal_density = dados_combinados[dados_combinados['densidade_pop_km2'] <= highlight_threshold]
-        
-        # Plot normal density cells in green
-        if not normal_density.empty:
-            normal_density.plot(
-                ax=ax,
-                color='green',
-                alpha=0.5,
-                edgecolor='darkgreen',
-                linewidth=0.3,
-                legend=False
-            )
-        
-        # Plot high density cells with red highlight
-        if not high_density.empty:
-            high_density.plot(
-                ax=ax,
-                color='red',
-                alpha=0.7,
-                edgecolor='darkred',
-                linewidth=0.5,
-                legend=False
-            )
-    else:
-        # Standard plot without highlighting - with colorbar legend
-        im = dados_combinados.plot(
-            column='densidade_pop_km2',
-            ax=ax,
-            cmap='YlOrBr',
-            alpha=0.6,
-            edgecolor='black',
-            linewidth=0.2,
-            legend=True,
-            legend_kwds={'shrink': 0.3, 'label': 'Densidade (hab/km²)'}
-        )
-    
-    # Draw layer boundaries with legend
-    from matplotlib.patches import Patch
-    legend_elements = []
-    
-    for name in layers_para_mostrar:
-        if name in layers_poligonos:
-            gpd.GeoSeries([layers_poligonos[name]]).boundary.plot(
-                ax=ax, color=COLORS[name], linewidth=2.5
-            )
-            legend_elements.append(Patch(facecolor='none', edgecolor=COLORS[name], 
-                                        linewidth=2, label=name))
-    
-    # Add high and low density cells to legend if threshold is set
-    if highlight_threshold is not None:
-        # Always add both legend items when threshold is set
-        legend_elements.append(Patch(facecolor='green', edgecolor='darkgreen', 
-                                    alpha=0.5, label=f'Densidade ≤ {highlight_threshold} hab/km²'))
-        legend_elements.append(Patch(facecolor='red', edgecolor='darkred', 
-                                    alpha=0.7, label=f'Densidade > {highlight_threshold} hab/km²'))
-    
-    # Add legend
-    ax.legend(handles=legend_elements, loc='upper right', fontsize=12, 
-             framealpha=0.9, edgecolor='black')
+    desenhar_contornos(ax, layers_poligonos, layers_para_mostrar)
     
     ax.set_title(titulo, fontsize=18, fontweight='bold')
     ax.set_xlabel("Longitude [deg]", fontsize=14)
@@ -320,24 +260,11 @@ def processar_todas_grades(area_geom, titulo, layers_poligonos, layers_para_most
     # Statistics
     total_pessoas, area_total_km2, densidade_media = calcular_estatisticas(dados_area)
     
-    # If use_polygon_area is True, recalculate density using actual polygon area
-    if use_polygon_area:
-        # Calculate actual polygon area in km²
-        area_geom_projected = gpd.GeoSeries([area_geom], crs='EPSG:4326').to_crs(ALBERS_BR)
-        area_real_km2 = area_geom_projected.area.iloc[0] / 1e6
-        densidade_media = total_pessoas / area_real_km2 if area_real_km2 > 0 else 0.0
-        
-        info_texto = (
-            f"Total population: {int(total_pessoas):,}\n"
-            f"Polygon area: {area_real_km2:.2f} km²\n"
-            f"Average density: {densidade_media:.2f} pop/km²"
-        ).replace(",", ".")
-    else:
-        info_texto = (
-            f"Total population: {int(total_pessoas):,}\n"
-            f"Total cell area: {area_total_km2:.2f} km²\n"
-            f"Average density: {densidade_media:.2f} pop/km²"
-        ).replace(",", ".")
+    info_texto = (
+        f"Total population: {int(total_pessoas):,}\n"
+        f"Total cell area: {area_total_km2:.2f} km²\n"
+        f"Average density: {densidade_media:.2f} pop/km²"
+    ).replace(",", ".")
     
     ax.text(
         0.0, -0.10,
@@ -395,8 +322,7 @@ def analyze_population(kml_file, output_dir='results'):
         titulo="Population Density - Flight Geography",
         layers_poligonos=layers_poligonos,
         layers_para_mostrar=['Flight Geography'],
-        output_path=os.path.join(output_dir, 'map_flight_geography.png'),
-        highlight_threshold=5  # Highlight cells > 5 hab/km²
+        output_path=os.path.join(output_dir, 'map_flight_geography.png')
     )
     if stats:
         results['Flight Geography'] = stats
@@ -407,24 +333,20 @@ def analyze_population(kml_file, output_dir='results'):
         titulo="Population Density - Ground Risk Buffer",
         layers_poligonos=layers_poligonos,
         layers_para_mostrar=['Flight Geography', 'Contingency Volume', 'Ground Risk Buffer'],
-        output_path=os.path.join(output_dir, 'map_ground_risk_buffer.png'),
-        highlight_threshold=5  # Highlight cells > 5 hab/km²
+        output_path=os.path.join(output_dir, 'map_ground_risk_buffer.png')
     )
     if stats:
         results['Ground Risk Buffer'] = stats
     
     # Plot 3 — Adjacent Area ring
-    # Note: Adjacent Area is built 5km from CV, but the analyzed ring excludes GRB
-    if 'Adjacent Area' in layers_poligonos and 'Ground Risk Buffer' in layers_poligonos:
-        area_anel = layers_poligonos['Adjacent Area'].difference(layers_poligonos['Ground Risk Buffer'])
+    if 'Adjacent Area' in layers_poligonos and 'Contingency Volume' in layers_poligonos:
+        area_anel = layers_poligonos['Adjacent Area'].difference(layers_poligonos['Contingency Volume'])
         stats = processar_todas_grades(
             area_geom=area_anel,
             titulo="Population Density - Adjacent Area",
             layers_poligonos=layers_poligonos,
             layers_para_mostrar=['Flight Geography', 'Contingency Volume', 'Ground Risk Buffer', 'Adjacent Area'],
-            output_path=os.path.join(output_dir, 'map_adjacent_area.png'),
-            highlight_threshold=None,  # No highlighting for adjacent area
-            use_polygon_area=True  # Use actual polygon area for density calculation
+            output_path=os.path.join(output_dir, 'map_adjacent_area.png')
         )
         if stats:
             results['Adjacent Area'] = stats
