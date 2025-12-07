@@ -58,7 +58,7 @@ st.markdown("""
     
     /* Header styling */
     .main-header {
-        background: linear-gradient(90deg, #054750 0%, #2a2a3e 100%);
+        background: linear-gradient(90deg, #054750 0%, #171495 100%);
         padding: 2rem;
         border-radius: 10px;
         margin-bottom: 2rem;
