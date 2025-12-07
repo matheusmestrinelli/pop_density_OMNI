@@ -422,8 +422,13 @@ def main():
             cols = st.columns(len(results))
             for idx, (layer_name, stats) in enumerate(results.items()):
                 with cols[idx]:
-                    densidade = stats['densidade_media']
-                    populacao = int(stats['total_pessoas'])
+                    # Use maximum density for FG and GRB, average for Adjacent Area
+                    if layer_name in ['Flight Geography', 'Ground Risk Buffer']:
+                        densidade = stats['densidade_maxima']
+                        density_label = "Máx"
+                    else:
+                        densidade = stats['densidade_media']
+                        density_label = "Média"
                     
                     # Define threshold based on layer
                     if layer_name == 'Adjacent Area':
@@ -439,6 +444,7 @@ def main():
                             <p style="color: #ff0000; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">
                                 ⚠️ {densidade:.1f} <span style="color: #ff6666; font-size: 1.2rem; font-weight: 600;">hab/km²</span>
                             </p>
+                            <p style="color: #aaa; font-size: 0.8rem; margin: 0;">Densidade {density_label}</p>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
@@ -448,18 +454,24 @@ def main():
                             <p style="color: #00ff00; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">
                                 ✓ {densidade:.1f} <span style="color: #66ff66; font-size: 1.2rem; font-weight: 600;">hab/km²</span>
                             </p>
+                            <p style="color: #aaa; font-size: 0.8rem; margin: 0;">Densidade {density_label}</p>
                         </div>
                         """, unsafe_allow_html=True)
             
             # Detailed statistics table
             with st.expander("📋 Estatísticas Detalhadas"):
                 import pandas as pd
-                stats_df = pd.DataFrame(results).T
-                stats_df.columns = ['População Total', 'Área (km²)', 'Densidade (hab/km²)']
-                stats_df['População Total'] = stats_df['População Total'].astype(int)
-                stats_df['Área (km²)'] = stats_df['Área (km²)'].round(2)
-                stats_df['Densidade (hab/km²)'] = stats_df['Densidade (hab/km²)'].round(2)
-                st.dataframe(stats_df, use_container_width=True)
+                stats_data = []
+                for layer, stat in results.items():
+                    stats_data.append({
+                        'Camada': layer,
+                        'População Total': int(stat['total_pessoas']),
+                        'Área (km²)': round(stat['area_km2'], 2),
+                        'Densidade Média (hab/km²)': round(stat['densidade_media'], 2),
+                        'Densidade Máxima (hab/km²)': round(stat['densidade_maxima'], 2)
+                    })
+                stats_df = pd.DataFrame(stats_data)
+                st.dataframe(stats_df, use_container_width=True, hide_index=True)
             
             # Display maps
             st.markdown("---")
