@@ -236,7 +236,7 @@ def main():
     """, unsafe_allow_html=True)
     
     # File upload
-    st.markdown("### 📤 Upload do KML")
+    st.markdown("### 📤 1. Upload do KML")
     uploaded_file = st.file_uploader(
         "Selecione o arquivo KML de entrada",
         type=['kml'],
@@ -265,7 +265,7 @@ def main():
             has_point_or_line = True
         
         # Create two columns for parameters
-        st.markdown("### ⚙️ Configuração dos Parâmetros")
+        st.markdown("### ⚙️ 2. Configuração dos Parâmetros")
         
         col1, col2 = st.columns(2)
         
@@ -312,10 +312,11 @@ def main():
         
         # Calculate GRB preview
         grb_preview = gsm.calculate_grb_size(height)
-        st.info(f"📊 Ground Risk Buffer calculado: {grb_preview:.2f} m")
+        st.info(f"Ground Risk Buffer: {grb_preview:.2f} m")
+        st.info(f"Adjacente Area: 5000m")
         
         # Process button
-        if st.button("🚀 Iniciar Análise Completa", type="primary"):
+        if st.button("Iniciar Análise de Densidade Populacional", type="primary"):
             # Clear previous results
             if 'analysis_results' in st.session_state:
                 del st.session_state['analysis_results']
