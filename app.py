@@ -72,10 +72,10 @@ st.markdown("""
     /* Card styling */
     .info-card {
         background: rgba(255, 255, 255, 0.05);
-        padding: 1rem;
+        padding: 0rem;
         border-radius: 0px;
         border: 0px solid rgba(0, 255, 0, 0.2);
-        margin: 0rem 0;
+        margin: 1rem 0;
         backdrop-filter: blur(10px);
     }
     
