@@ -114,13 +114,11 @@ def identificar_grades_relevantes(area_geom):
 
 def carregar_grid_ibge(grade_id, use_cache=True):
     """
-    Download and load IBGE grid shapefile with caching.
+    Download and load IBGE statistical grid shapefile with caching.
     
-    The IBGE Statistical Grid uses:
-    - 1km x 1km cells in rural areas
-    - 200m x 200m cells in urban areas
+    Uses the standard IBGE Statistical Grid (Census 2022):
+    - Mixed resolution: 1km x 1km (rural) and 200m x 200m (urban)
     - Albers Equal Area projection (SIRGAS2000)
-    - Data from Census 2022
     """
     if use_cache and grade_id in _GRID_CACHE:
         return _GRID_CACHE[grade_id], grade_id
