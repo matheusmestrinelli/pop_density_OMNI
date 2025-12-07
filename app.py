@@ -224,7 +224,7 @@ def main():
     # Main content
     st.markdown("""
     <div class="info-card">
-        <h3>ℹ️ Como usar</h3>
+        <h3>Como usar</h3>
         <p>Faça upload de um arquivo KML contendo a geometria do voo (linha ou polígono). 
         A ferramenta irá automaticamente:</p>
         <ul>
