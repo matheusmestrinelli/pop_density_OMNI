@@ -366,7 +366,7 @@ def main():
     if st.session_state['current_step'] >= 2 and st.session_state['kml_uploaded']:
         if st.session_state['parameters_set']:
             # Show completed step with edit option
-            col1, col2 = st.columns([5, 1])
+            col1, col2 = st.columns([8, 1])
             with col1:
                 st.markdown(f"""
                 <div class="completed-step">
@@ -374,7 +374,7 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             with col2:
-                if st.button("✏️ Editar", key="edit_step2"):
+                if st.button("✏️", key="edit_step2", type="secondary", help="Editar parâmetros"):
                     st.session_state['parameters_set'] = False
                     st.session_state['current_step'] = 2
                     if 'analysis_results' in st.session_state:
@@ -619,7 +619,7 @@ def main():
             # KML download
             with col1:
                 st.download_button(
-                    label="📥 KML Margens",
+                    label="📥 Margens de Segurança",
                     data=kml_data,
                     file_name='safety_margins.kml',
                     mime='application/vnd.google-earth.kml+xml',
@@ -628,6 +628,7 @@ def main():
                 )
             
             # Map downloads
+            map_labels = ['📥 Mapa FG', '📥 Mapa GRB', '📥 Mapa AA']
             for idx, (map_file, map_title) in enumerate(maps):
                 map_path = os.path.join(analysis_output_dir, map_file)
                 if os.path.exists(map_path):
@@ -635,7 +636,7 @@ def main():
                         with open(map_path, 'rb') as f:
                             file_data = f.read()
                             st.download_button(
-                                label=f"📥 {map_title}",
+                                label=map_labels[idx],
                                 data=file_data,
                                 file_name=map_file,
                                 mime='image/png',
