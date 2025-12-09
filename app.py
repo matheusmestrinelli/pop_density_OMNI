@@ -106,6 +106,23 @@ st.markdown("""
         border-color: #E0AB25;
     }
     
+    /* Small edit buttons */
+    button[kind="secondary"] {
+        padding: 0.3rem 0.8rem !important;
+        font-size: 0.85rem !important;
+        min-height: 2rem !important;
+        background: transparent !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: #ffffff !important;
+    }
+    
+    button[kind="secondary"]:hover {
+        background: rgba(224, 171, 37, 0.2) !important;
+        border-color: #E0AB25 !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
     /* Input fields */
     .stTextInput>div>div>input,
     .stNumberInput>div>div>input,
@@ -304,40 +321,11 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Navigation buttons at the top
-    if st.session_state['current_step'] > 1:
-        col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 4])
-        with col_nav1:
-            if st.button("🔄 Reiniciar", key="restart_top"):
-                # Clear all session state
-                for key in ['current_step', 'kml_uploaded', 'parameters_set', 'analysis_results', 
-                           'uploaded_file', 'kml_filename', 'fg_size', 'height', 'cv_size', 'corner_style']:
-                    if key in st.session_state:
-                        del st.session_state[key]
-                st.session_state['current_step'] = 1
-                st.rerun()
-        
-        with col_nav2:
-            if st.session_state['current_step'] > 2 and st.button("⬅️ Voltar", key="back_top"):
-                if st.session_state['current_step'] == 3:
-                    # Go back to parameters
-                    st.session_state['parameters_set'] = False
-                    st.session_state['current_step'] = 2
-                    if 'analysis_results' in st.session_state:
-                        del st.session_state['analysis_results']
-                elif st.session_state['current_step'] == 2:
-                    # Go back to upload
-                    st.session_state['kml_uploaded'] = False
-                    st.session_state['current_step'] = 1
-                st.rerun()
-        
-        st.markdown("---")
-    
     # STEP 1: Upload KML
     if st.session_state['current_step'] >= 1:
         if st.session_state['kml_uploaded']:
             # Show completed step with edit option
-            col1, col2 = st.columns([5, 1])
+            col1, col2 = st.columns([8, 1])
             with col1:
                 st.markdown(f"""
                 <div class="completed-step">
@@ -345,7 +333,7 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             with col2:
-                if st.button("✏️ Editar", key="edit_step1"):
+                if st.button("✏️", key="edit_step1", type="secondary", help="Editar KML"):
                     st.session_state['kml_uploaded'] = False
                     st.session_state['current_step'] = 1
                     st.rerun()
