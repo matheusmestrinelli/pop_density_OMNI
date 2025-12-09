@@ -5,8 +5,10 @@ AL Drones - Flight Area Analysis Tool
 import streamlit as st
 import os
 import tempfile
+import io
 from pathlib import Path
 import geopandas as gpd
+import simplekml
 
 # Import from src folder
 from src import generate_safety_margins as gsm
@@ -114,6 +116,7 @@ st.markdown("""
         background: transparent !important;
         border: 1px solid rgba(255, 255, 255, 0.3) !important;
         color: #ffffff !important;
+        margin-top: 0.25rem !important;
     }
     
     button[kind="secondary"]:hover {
@@ -121,6 +124,12 @@ st.markdown("""
         border-color: #E0AB25 !important;
         transform: none !important;
         box-shadow: none !important;
+    }
+    
+    /* Align completed step with button */
+    .completed-step {
+        display: flex;
+        align-items: center;
     }
     
     /* Input fields */
