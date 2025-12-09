@@ -48,12 +48,12 @@ st.markdown("""
     
     /* Header styling */
     .main-header {
-        background: linear-gradient(90deg, #054750 0%, #0a6b7a 100%);
+        background: linear-gradient(90deg, #054750 0%, #0D0B54 100%);
         padding: 1rem;
         border-radius: 10px;
         margin-bottom: 0rem;
         border-left: 5px solid #E0AB25;
-        box-shadow: 0 4px 12px rgba(5, 71, 80, 0.5);
+        box-shadow: 0 4px 12px rgba(13, 11, 84, 0.5);
     }
     
     .main-header h1 {
@@ -304,15 +304,51 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
+    # Navigation buttons at the top
+    if st.session_state['current_step'] > 1:
+        col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 4])
+        with col_nav1:
+            if st.button("🔄 Reiniciar", key="restart_top"):
+                # Clear all session state
+                for key in ['current_step', 'kml_uploaded', 'parameters_set', 'analysis_results', 
+                           'uploaded_file', 'kml_filename', 'fg_size', 'height', 'cv_size', 'corner_style']:
+                    if key in st.session_state:
+                        del st.session_state[key]
+                st.session_state['current_step'] = 1
+                st.rerun()
+        
+        with col_nav2:
+            if st.session_state['current_step'] > 2 and st.button("⬅️ Voltar", key="back_top"):
+                if st.session_state['current_step'] == 3:
+                    # Go back to parameters
+                    st.session_state['parameters_set'] = False
+                    st.session_state['current_step'] = 2
+                    if 'analysis_results' in st.session_state:
+                        del st.session_state['analysis_results']
+                elif st.session_state['current_step'] == 2:
+                    # Go back to upload
+                    st.session_state['kml_uploaded'] = False
+                    st.session_state['current_step'] = 1
+                st.rerun()
+        
+        st.markdown("---")
+    
     # STEP 1: Upload KML
     if st.session_state['current_step'] >= 1:
         if st.session_state['kml_uploaded']:
-            # Show completed step
-            st.markdown(f"""
-            <div class="completed-step">
-                ✓ Etapa 1 concluída: KML carregado ({st.session_state.get('kml_filename', 'arquivo.kml')})
-            </div>
-            """, unsafe_allow_html=True)
+            # Show completed step with edit option
+            col1, col2 = st.columns([5, 1])
+            with col1:
+                st.markdown(f"""
+                <div class="completed-step">
+                    ✓ Etapa 1 concluída: KML carregado ({st.session_state.get('kml_filename', 'arquivo.kml')})
+                </div>
+                """, unsafe_allow_html=True)
+            with col2:
+                if st.button("✏️ Editar", key="edit_step1"):
+                    st.session_state['kml_uploaded'] = False
+                    st.session_state['current_step'] = 1
+                    st.rerun()
         else:
             st.markdown("### 📤 Etapa 1: Upload do KML")
             uploaded_file = st.file_uploader(
@@ -334,12 +370,21 @@ def main():
     # STEP 2: Configure Parameters
     if st.session_state['current_step'] >= 2 and st.session_state['kml_uploaded']:
         if st.session_state['parameters_set']:
-            # Show completed step
-            st.markdown(f"""
-            <div class="completed-step">
-                ✓ Etapa 2 concluída: Parâmetros configurados (Altura: {st.session_state.get('height', 0)}m, CV: {st.session_state.get('cv_size', 0)}m)
-            </div>
-            """, unsafe_allow_html=True)
+            # Show completed step with edit option
+            col1, col2 = st.columns([5, 1])
+            with col1:
+                st.markdown(f"""
+                <div class="completed-step">
+                    ✓ Etapa 2 concluída: Parâmetros configurados (Altura: {st.session_state.get('height', 0)}m, CV: {st.session_state.get('cv_size', 0)}m)
+                </div>
+                """, unsafe_allow_html=True)
+            with col2:
+                if st.button("✏️ Editar", key="edit_step2"):
+                    st.session_state['parameters_set'] = False
+                    st.session_state['current_step'] = 2
+                    if 'analysis_results' in st.session_state:
+                        del st.session_state['analysis_results']
+                    st.rerun()
         else:
             st.markdown("### ⚙️ Etapa 2: Configuração dos Parâmetros")
             
