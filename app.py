@@ -5,10 +5,8 @@ AL Drones - Flight Area Analysis Tool
 import streamlit as st
 import os
 import tempfile
-import io
 from pathlib import Path
 import geopandas as gpd
-import simplekml
 
 # Import from src folder
 from src import generate_safety_margins as gsm
@@ -368,7 +366,7 @@ def main():
     if st.session_state['current_step'] >= 2 and st.session_state['kml_uploaded']:
         if st.session_state['parameters_set']:
             # Show completed step with edit option
-            col1, col2 = st.columns([8, 1])
+            col1, col2 = st.columns([5, 1])
             with col1:
                 st.markdown(f"""
                 <div class="completed-step">
@@ -376,7 +374,7 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             with col2:
-                if st.button("✏️", key="edit_step2", type="secondary", help="Editar parâmetros"):
+                if st.button("✏️ Editar", key="edit_step2"):
                     st.session_state['parameters_set'] = False
                     st.session_state['current_step'] = 2
                     if 'analysis_results' in st.session_state:
@@ -581,6 +579,7 @@ def main():
                         """, unsafe_allow_html=True)
             
             # Detailed statistics table
+            st.markdown("---")
             with st.expander("📋 Estatísticas Detalhadas"):
                 import pandas as pd
                 stats_data = []
