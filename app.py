@@ -378,7 +378,7 @@ def main():
             with col1:
                 st.markdown(f"""
                 <div class="completed-step">
-                    ✓ Etapa 2 concluída: Parâmetros configurados (Altura: {st.session_state.get('height', 0)}m, CV: {st.session_state.get('cv_size', 0)}m)
+                    ✓ Etapa 2 concluída: Parâmetros configurados (Altura: {st.session_state.get('height', 0)}m, CV: {st.session_state.get('cv_size', 0)}m, GRB: {st.session_state.get('grb_size', 0)}m)
                 </div>
                 """, unsafe_allow_html=True)
             with col2:
@@ -439,10 +439,20 @@ def main():
                 st.markdown("#### Parâmetros de Buffer")
                 cv_size = st.number_input(
                     "Contingency Volume (m)",
-                    min_value=0.0,
-                    value=50.0,
+                    min_value=215.0,
+                    value=215.0,
                     step=10.0,
-                    help="Tamanho do volume de contingência"
+                    help="Tamanho do volume de contingência (mínimo: 215m)"
+                )
+                
+                # Calculate minimum GRB based on height
+                grb_minimum = gsm.calculate_grb_size(height)
+                grb_size = st.number_input(
+                    "Ground Risk Buffer (m)",
+                    min_value=grb_minimum,
+                    value=grb_minimum,
+                    step=10.0,
+                    help=f"Buffer de risco ao solo (mínimo calculado: {grb_minimum:.2f}m baseado na altura de voo)"
                 )
                 
                 corner_style = st.selectbox(
@@ -452,14 +462,14 @@ def main():
                     help="Estilo dos cantos dos buffers"
                 )
             
-            grb_preview = gsm.calculate_grb_size(height)
-            st.info(f"Ground Risk Buffer: {grb_preview:.2f} m | Adjacent Area: 5000m")
+            st.info(f"Adjacent Area: 5000m")
             
             if st.button("🚀 Iniciar Análise", type="primary"):
                 # Store parameters
                 st.session_state['fg_size'] = fg_size
                 st.session_state['height'] = height
                 st.session_state['cv_size'] = cv_size
+                st.session_state['grb_size'] = grb_size
                 st.session_state['corner_style'] = corner_style
                 st.session_state['parameters_set'] = True
                 st.session_state['current_step'] = 3
@@ -478,6 +488,7 @@ def main():
                 fg_size = st.session_state.get('fg_size')
                 height = st.session_state.get('height')
                 cv_size = st.session_state.get('cv_size')
+                grb_size = st.session_state.get('grb_size')
                 corner_style = st.session_state.get('corner_style')
                 
                 # ETAPA 1: Gerar Margens de Segurança
@@ -497,6 +508,7 @@ def main():
                     fg_size=fg_size,
                     height=height,
                     cv_size=cv_size,
+                    grb_size=grb_size,
                     corner_style=corner_style
                 )
                 
