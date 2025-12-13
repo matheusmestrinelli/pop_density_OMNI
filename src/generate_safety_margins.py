@@ -42,6 +42,7 @@ def generate_safety_margins(
     fg_size=0,
     height=100,
     cv_size=50,
+    grb_size=None,
     adj_size=5000,
     corner_style='square'
 ):
@@ -53,7 +54,8 @@ def generate_safety_margins(
         output_kml_path (str): Path for output KML file (optional)
         fg_size (float): Flight Geography buffer size in meters (0 for polygons)
         height (float): Flight height in meters
-        cv_size (float): Contingency Volume buffer size in meters
+        cv_size (float): Contingency Volume buffer size in meters (min: 215m)
+        grb_size (float): Ground Risk Buffer size in meters (optional, calculated if None)
         adj_size (float): Adjacent Area buffer size in meters (default 5000)
         corner_style (str): 'square' or 'rounded' for buffer corners
         
@@ -74,8 +76,22 @@ def generate_safety_margins(
     # Set join style for corners
     join_style = 2 if corner_style == 'square' else 1
     
-    # Calculate Ground Risk Buffer size
-    grb_size = calculate_grb_size(height)
+    # Calculate Ground Risk Buffer size if not provided
+    if grb_size is None:
+        grb_size = calculate_grb_size(height)
+    else:
+        # Validate that custom GRB is not less than calculated minimum
+        grb_minimum = calculate_grb_size(height)
+        if grb_size < grb_minimum:
+            print(f"⚠️  Warning: GRB size ({grb_size}m) is less than calculated minimum ({grb_minimum:.2f}m)")
+            print(f"   Using minimum value: {grb_minimum:.2f}m")
+            grb_size = grb_minimum
+    
+    # Validate Contingency Volume minimum
+    if cv_size < 215:
+        print(f"⚠️  Warning: CV size ({cv_size}m) is less than minimum (215m)")
+        print(f"   Using minimum value: 215m")
+        cv_size = 215
     
     # Create buffers
     buffers = {
@@ -173,8 +189,14 @@ def main():
     parser.add_argument(
         '--cv-size',
         type=float,
-        default=50,
-        help='Contingency Volume buffer size in meters (default: 50)'
+        default=215,
+        help='Contingency Volume buffer size in meters (default: 215, minimum: 215)'
+    )
+    parser.add_argument(
+        '--grb-size',
+        type=float,
+        default=None,
+        help='Ground Risk Buffer size in meters (optional, calculated from height if not provided)'
     )
     parser.add_argument(
         '--adj-size',
@@ -197,6 +219,7 @@ def main():
         fg_size=args.fg_size,
         height=args.height,
         cv_size=args.cv_size,
+        grb_size=args.grb_size,
         adj_size=args.adj_size,
         corner_style=args.corner_style
     )
