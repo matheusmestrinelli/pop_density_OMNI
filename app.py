@@ -24,6 +24,14 @@ st.set_page_config(
 # Custom CSS with AL Drones branding
 st.markdown("""
 <style>
+    /* Import Segoe UI Emoji font */
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI+Emoji&display=swap');
+    
+    /* Apply font globally */
+    * {
+        font-family: 'Segoe UI Emoji', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    
     /* Hide Streamlit header elements */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
@@ -39,6 +47,8 @@ st.markdown("""
         --aldrones-dark: #1a1a1a;
         --aldrones-yellow: #E0AB25;
         --aldrones-light-teal: #0a6b7a;
+        --aldrones-green: #00ff00;
+        --aldrones-green-strong: #00cc00;
     }
     
     /* Main background */
@@ -46,10 +56,10 @@ st.markdown("""
         background: #000000;
     }
     
-    /* Header styling */
+    /* Header styling - ALTURA REDUZIDA */
     .main-header {
         background: linear-gradient(90deg, #054750 0%, #0D0B54 100%);
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         border-radius: 10px;
         margin-bottom: 0rem;
         border-left: 5px solid #E0AB25;
@@ -58,15 +68,25 @@ st.markdown("""
     
     .main-header h1 {
         color: #ffffff;
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: 700;
         margin-bottom: 0rem;
+        line-height: 1.2;
     }
     
     .main-header p {
         color: #e0f7fa;
         font-size: 1rem;
         margin: 0;
+    }
+    
+    /* Logo container spacing ajustado */
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 3rem;
+        margin-bottom: 1rem;
     }
     
     /* Card styling */
@@ -82,10 +102,24 @@ st.markdown("""
     .info-card h3 {
         color: #E0AB25;
         margin-top: 0;
+        margin-bottom: 0.5rem;
     }
     
-    .info-card p, .info-card ul {
+    .info-card p {
         color: #e0e0e0;
+        margin: 0.3rem 0;
+        line-height: 1.4;
+    }
+    
+    .info-card ul {
+        color: #e0e0e0;
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    .info-card li {
+        margin: 0.2rem 0;
+        line-height: 1.3;
     }
     
     /* Buttons */
@@ -174,11 +208,15 @@ st.markdown("""
         border-radius: 5px;
     }
     
-    /* Success messages */
+    /* Success messages - COR VERDE AL DRONES */
     .stSuccess {
-        background: rgba(224, 171, 37, 0.1);
-        border-left: 4px solid #E0AB25;
-        color: #E0AB25;
+        background: rgba(0, 255, 0, 0.15) !important;
+        border-left: 4px solid #00ff00 !important;
+        color: #00ff00 !important;
+    }
+    
+    .stSuccess > div {
+        color: #00ff00 !important;
     }
     
     /* Info messages */
@@ -279,6 +317,40 @@ st.markdown("""
         color: #0a6b7a !important;
     }
     
+    /* Result boxes - VERDE MAIS FORTE PARA MELHOR CONTRASTE */
+    .result-box-success {
+        background: rgba(0, 204, 0, 0.08);
+        padding: 1rem;
+        border-radius: 5px;
+        border-left: 4px solid #00cc00;
+    }
+    
+    .result-box-success p:first-child {
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .result-box-success p:nth-child(2) {
+        color: #00cc00;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+    
+    .result-box-success span {
+        color: #66ff66;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .result-box-success p:last-child {
+        color: #aaa;
+        font-size: 0.8rem;
+        margin: 0;
+    }
+    
 </style>
 """, unsafe_allow_html=True)
 
@@ -287,14 +359,14 @@ def create_header():
     """Create application header with logos."""
     st.markdown("""
     <div class="main-header">
-        <div style="display: flex; justify-content: center; align-items: center; gap: 3rem; margin-bottom: 2rem;">
+        <div class="logo-container">
             <img src="https://aldrones.com.br/wp-content/uploads/2021/01/Logo-branca-2.png" 
                  alt="AL Drones Logo" 
-                 style="height: 70px; object-fit: contain;">
-            <div style="width: 2px; height: 100px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent);"></div>
+                 style="height: 60px; object-fit: contain;">
+            <div style="width: 2px; height: 80px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent);"></div>
             <img src="https://www.omnibrasil.com.br/assets/home/img/logo-branco-omni.png" 
                  alt="Omni Logo" 
-                 style="height: 70px; object-fit: contain;">
+                 style="height: 60px; object-fit: contain;">
         </div>
         <h1 style="text-align: center;">Análise da Área de Voo para o SwissDrones SDO 50 V3</h1>
     </div>
@@ -569,12 +641,10 @@ def main():
                         """, unsafe_allow_html=True)
                     else:
                         st.markdown(f"""
-                        <div style="background: rgba(0, 255, 0, 0.05); padding: 1rem; border-radius: 5px; border-left: 4px solid #00ff00;">
-                            <p style="color: #ffffff; font-size: 1.1rem; font-weight: 600; margin: 0;">{layer_name}</p>
-                            <p style="color: #00ff00; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">
-                                ✓ {densidade:.1f} <span style="color: #66ff66; font-size: 1.2rem; font-weight: 600;">hab/km²</span>
-                            </p>
-                            <p style="color: #aaa; font-size: 0.8rem; margin: 0;">Densidade {density_label}</p>
+                        <div class="result-box-success">
+                            <p>{layer_name}</p>
+                            <p>✓ {densidade:.1f} <span>hab/km²</span></p>
+                            <p>Densidade {density_label}</p>
                         </div>
                         """, unsafe_allow_html=True)
             
