@@ -214,6 +214,23 @@ st.markdown("""
         border-color: #E0AB25;
     }
     
+    /* Fix expander icon overlap */
+    .streamlit-expanderHeader p {
+        margin: 0 !important;
+        padding-right: 2rem !important;
+    }
+    
+    /* Limit image height */
+    .stImage img {
+        max-height: 70vh !important;
+        max-width: 100% !important;
+        width: auto !important;
+        height: auto !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    
     /* Metrics */
     [data-testid="stMetricValue"] {
         color: #E0AB25;
@@ -619,7 +636,7 @@ def main():
             
             # Detailed statistics table
             st.markdown("---")
-            with st.expander("📋 Estatísticas Detalhadas"):
+            with st.expander("📋 Estatísticas Detalhadas", expanded=False):
                 import pandas as pd
                 stats_data = []
                 for layer, stat in results.items():
