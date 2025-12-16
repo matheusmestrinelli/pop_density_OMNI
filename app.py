@@ -563,6 +563,8 @@ def main():
             
             # Create metrics with color coding
             cols = st.columns(len(results))
+            show_warning = False  # Flag to show warning below results
+            
             for idx, (layer_name, stats) in enumerate(results.items()):
                 with cols[idx]:
                     if layer_name in ['Flight Geography', 'Ground Risk Buffer']:
@@ -597,6 +599,23 @@ def main():
                             <p style="color: #aaa; font-size: 0.8rem; margin: 0;">Densidade {density_label}</p>
                         </div>
                         """, unsafe_allow_html=True)
+                        
+                        # Check if warning should be shown
+                        if layer_name in ['Flight Geography', 'Ground Risk Buffer'] and 0 < densidade <= 5:
+                            show_warning = True
+            
+            # Show warning if Flight Geography or GRB has density between 0 and 5
+            if show_warning:
+                st.markdown("""
+                <div style="background: rgba(255, 165, 0, 0.1); padding: 1rem; border-radius: 5px; border-left: 4px solid #FFA500; margin-top: 1rem;">
+                    <p style="color: #FFA500; font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem 0;">⚠️ Atenção: Restrições de Sobrevoo</p>
+                    <p style="color: #e0e0e0; font-size: 0.9rem; margin: 0; line-height: 1.5;">
+                        O voo sobre <strong>não anuentes é proibido</strong>. A trajetória de voo deve estar <strong>completamente contida</strong> 
+                        na Geografia de Voo e <strong>não pode sobrevoar terceiros</strong>. Certifique-se de que todas as propriedades 
+                        ao longo da rota possuem autorização dos proprietários.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
             
             # Detailed statistics table
             st.markdown("---")
